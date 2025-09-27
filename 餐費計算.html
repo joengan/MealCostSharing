@@ -137,6 +137,63 @@
         .settings-area { margin-bottom: 15px; }
         .settings-area label { font-weight: bold; }
         .settings-area input { width: 60px; }
+        
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff;
+            padding: 30px 30px 20px 30px;
+            border-radius: 10px;
+            min-width: 350px;
+            max-width: 90vw;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .common-list-block { margin-bottom: 18px; }
+        .common-list { list-style: none; padding: 0; margin: 0; }
+        .common-list li {
+            background: #f7f7f7;
+            margin-bottom: 6px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: grab;
+        }
+        .common-list li.dragging { opacity: 0.5; background: #e0e0e0; }
+        .common-list .delete-btn {
+            background: none;
+            color: #d32f2f;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+        
+        #settings-btn {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 20;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +239,30 @@
             <p id="grand-total"></p>
         </div>
     </div>
+
+    <div id="settings-btn" title="常用資訊管理">⚙️</div>
+    <div id="common-info-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close-modal" title="關閉">&times;</span>
+        <h2>常用資訊管理</h2>
+        <div class="common-list-block">
+          <h3>人員名稱</h3>
+          <ul id="common-person-list" class="common-list"></ul>
+        </div>
+        <div class="common-list-block">
+          <h3>費用名稱</h3>
+          <ul id="common-cost-list" class="common-list"></ul>
+        </div>
+        <div class="common-list-block">
+          <h3>優惠名稱</h3>
+          <ul id="common-discount-list" class="common-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <datalist id="common-person-datalist"></datalist>
+    <datalist id="common-cost-datalist"></datalist>
+    <datalist id="common-discount-datalist"></datalist>
 </div>
 
 <script>
@@ -281,7 +362,7 @@ function renderPersonnel() {
             div.dataset.id = p.id;
             div.draggable = true;
             div.innerHTML = `
-                <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}"></label>
+                <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}" list="common-person-datalist"></label>
                 <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
                 <div class="discount-logic">
                     <label>折扣:</label>
@@ -307,6 +388,8 @@ function renderPersonnel() {
             input.onchange = function() {
                 const id = parseInt(this.dataset.id);
                 updatePersonnel(id, 'name', this.value);
+                addCommonInfo('person', this.value);
+                updateCommonDatalists();
                 renderPersonnel(); // 立即分組
             };
         });
@@ -403,7 +486,7 @@ function renderSharedCosts() {
         div.dataset.id = sc.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>費用名稱: <input type="text" value="${sc.name}" oninput="updateSharedCost(${sc.id}, 'name', this.value)"></label>
+            <label>費用名稱: <input type="text" value="${sc.name}" oninput="updateSharedCost(${sc.id}, 'name', this.value)" list="common-cost-datalist"></label>
             <div class="cost-logic">
                 <label>費用:</label>
                 <select onchange="updateSharedCost(${sc.id}, 'cost.type', this.value)">
@@ -474,7 +557,7 @@ function renderSharedDiscounts() {
         div.dataset.id = sd.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>優惠名稱: <input type="text" value="${sd.name}" oninput="updateSharedDiscount(${sd.id}, 'name', this.value)"></label>
+            <label>優惠名稱: <input type="text" value="${sd.name}" oninput="updateSharedDiscount(${sd.id}, 'name', this.value)" list="common-discount-datalist"></label>
             <div class="discount-logic">
                 <label>優惠:</label>
                 <select onchange="updateSharedDiscount(${sd.id}, 'discount.type', this.value)">
@@ -836,6 +919,9 @@ function showSaveFeedback(button) {
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
     render();
+    document.getElementById('settings-btn').onclick = showCommonInfoModal;
+    document.querySelector('#common-info-modal .close-modal').onclick = hideCommonInfoModal;
+    syncCommonInfoFromAppData();
 });
 
 // 檢查瀏覽器是否支援 emoji 🗑️，不支援則顯示文字
@@ -850,6 +936,205 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline');
     }
 });
+
+// ===== 常用資訊管理 =====
+function renderCommonInfo() {
+    renderCommonPersonList();
+    renderCommonCostList();
+    renderCommonDiscountList();
+}
+
+function renderCommonPersonList() {
+    const list = document.getElementById('common-person-list');
+    list.innerHTML = '';
+    const commonNames = Array.from(new Set(appData.personnel.map(p => p.name.trim()).filter(name => name !== '')));
+    commonNames.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.onclick = function() { insertCommonPersonName(name); };
+        list.appendChild(li);
+    });
+}
+
+function renderCommonCostList() {
+    const list = document.getElementById('common-cost-list');
+    list.innerHTML = '';
+    const commonCosts = appData.sharedCosts.map(sc => ({ name: sc.name, type: sc.cost.type, value: sc.cost.value, cap: sc.cost.cap }));
+    commonCosts.forEach((cost, idx) => {
+        const li = document.createElement('li');
+        li.textContent = `${cost.name} - ${cost.type === 'amount' ? '$' : ''}${cost.value}${cost.type === 'percent' ? '%' : ''}${cost.cap > 0 ? ' (上限: $' + cost.cap + ')' : ''}`;
+        li.onclick = function() { insertCommonCost(cost); };
+        list.appendChild(li);
+    });
+}
+
+function renderCommonDiscountList() {
+    const list = document.getElementById('common-discount-list');
+    list.innerHTML = '';
+    const commonDiscounts = appData.sharedDiscounts.map(sd => ({ name: sd.name, type: sd.discount.type, value: sd.discount.value, cap: sd.discount.cap }));
+    commonDiscounts.forEach((discount, idx) => {
+        const li = document.createElement('li');
+        li.textContent = `${discount.name} - ${discount.type === 'amount' ? '$' : ''}${discount.value}${discount.type === 'percent' ? '%' : ''}${discount.cap > 0 ? ' (上限: $' + discount.cap + ')' : ''}`;
+        li.onclick = function() { insertCommonDiscount(discount); };
+        list.appendChild(li);
+    });
+}
+
+// 插入常用資訊
+function insertCommonPersonName(name) {
+    const input = document.querySelector('.person-name-input');
+    if (input) {
+        input.value = name;
+        const id = parseInt(input.dataset.id);
+        updatePersonnel(id, 'name', name);
+        renderPersonnel();
+    }
+}
+
+function insertCommonCost(cost) {
+    appData.sharedCosts.push({ id: Date.now(), name: cost.name, cost: { type: cost.type, value: cost.value, cap: cost.cap }, method: 'evenly' });
+    saveData();
+    renderSharedCosts();
+}
+
+function insertCommonDiscount(discount) {
+    appData.sharedDiscounts.push({ id: Date.now(), name: discount.name, discount: { type: discount.type, value: discount.value, cap: discount.cap }, method: 'evenly' });
+    saveData();
+    renderSharedDiscounts();
+}
+
+// Modal 功能
+const modal = document.getElementById('common-info-modal');
+const settingsBtn = document.getElementById('settings-btn');
+const closeModalBtn = document.querySelector('.close-modal');
+
+settingsBtn.onclick = function() {
+    modal.style.display = 'block';
+    renderCommonInfo();
+}
+
+closeModalBtn.onclick = function() {
+    modal.style.display = 'none';
+}
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// ===== 常用資訊管理功能 =====
+const COMMON_KEY = 'splitBillCommonInfo_v1';
+function getCommonInfo() {
+    const data = localStorage.getItem(COMMON_KEY);
+    if (data) {
+        try {
+            const obj = JSON.parse(data);
+            return {
+                person: obj.person || [],
+                cost: obj.cost || [],
+                discount: obj.discount || []
+            };
+        } catch { }
+    }
+    return { person: [], cost: [], discount: [] };
+}
+function saveCommonInfo(info) {
+    localStorage.setItem(COMMON_KEY, JSON.stringify(info));
+}
+let commonInfo = getCommonInfo();
+
+function showCommonInfoModal() {
+    document.getElementById('common-info-modal').style.display = 'flex';
+    renderCommonInfoLists();
+}
+function hideCommonInfoModal() {
+    document.getElementById('common-info-modal').style.display = 'none';
+}
+function renderCommonInfoLists() {
+    ['person','cost','discount'].forEach(type => {
+        const ul = document.getElementById('common-' + type + '-list');
+        ul.innerHTML = '';
+        commonInfo[type].forEach((name, idx) => {
+            const li = document.createElement('li');
+            li.draggable = true;
+            li.dataset.idx = idx;
+            li.innerHTML = `<span>${name}</span><button class='delete-btn' onclick='deleteCommonInfoItem("${type}",${idx})'><span class='delete-icon' aria-label='刪除' role='img'>✖️</span><span class='delete-fallback' style='display:none;'>刪除</span></button>`;
+            ul.appendChild(li);
+        });
+        setupCommonListDragAndDrop(ul, type);
+    });
+}
+function deleteCommonInfoItem(type, idx) {
+    commonInfo[type].splice(idx,1);
+    saveCommonInfo(commonInfo);
+    renderCommonInfoLists();
+}
+function setupCommonListDragAndDrop(ul, type) {
+    let draggedItem = null;
+    ul.querySelectorAll('li').forEach(item => {
+        item.addEventListener('dragstart', () => {
+            draggedItem = item;
+            setTimeout(() => item.classList.add('dragging'), 0);
+        });
+        item.addEventListener('dragend', () => {
+            if (draggedItem) draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+    ul.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(ul, e.clientY);
+        if (draggedItem) {
+            if (afterElement == null) ul.appendChild(draggedItem);
+            else ul.insertBefore(draggedItem, afterElement);
+        }
+    });
+    ul.addEventListener('drop', e => {
+        e.preventDefault();
+        const newOrder = [...ul.querySelectorAll('li')].map(li => parseInt(li.dataset.idx));
+        const newArr = newOrder.map(i => commonInfo[type][i]);
+        commonInfo[type] = newArr;
+        saveCommonInfo(commonInfo);
+        renderCommonInfoLists();
+    });
+}
+
+// ===== 常用資訊自動寫入 =====
+function addCommonInfo(type, name) {
+    name = (name || '').trim();
+    if (!name) return;
+    if (!commonInfo[type].includes(name)) {
+        commonInfo[type].push(name);
+        saveCommonInfo(commonInfo);
+    }
+}
+
+function updateCommonDatalists() {
+    const personDL = document.getElementById('common-person-datalist');
+    const costDL = document.getElementById('common-cost-datalist');
+    const discountDL = document.getElementById('common-discount-datalist');
+    personDL.innerHTML = commonInfo.person.map(n => `<option value="${n}">`).join('');
+    costDL.innerHTML = commonInfo.cost.map(n => `<option value="${n}">`).join('');
+    discountDL.innerHTML = commonInfo.discount.map(n => `<option value="${n}">`).join('');
+}
+
+// 同步現有資料至常用資訊
+function syncCommonInfoFromAppData() {
+    // 人員
+    appData.personnel.forEach(p => {
+        addCommonInfo('person', p.name);
+    });
+    // 費用
+    appData.sharedCosts.forEach(sc => {
+        addCommonInfo('cost', sc.name);
+    });
+    // 優惠
+    appData.sharedDiscounts.forEach(sd => {
+        addCommonInfo('discount', sd.name);
+    });
+    updateCommonDatalists();
+}
 </script>
 
 </body>
