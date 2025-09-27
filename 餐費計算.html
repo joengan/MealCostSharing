@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐費計算機</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            flex-wrap: wrap;
+        }
+        .item-row input, .item-row select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .item-row input[type="text"] { flex-grow: 1; min-width: 100px; }
+        .item-row input[type="number"] { width: 100px; }
+        .discount-logic, .cost-logic { /* Added .cost-logic */
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-btn:hover { background-color: #d32f2f; }
+        .add-btn, .calc-btn, .temp-save-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .add-btn:hover, .calc-btn:hover, .temp-save-btn:hover { background-color: #45a049; }
+        .temp-save-btn {
+            background-color: #008CBA;
+            margin-left: 10px;
+        }
+        .temp-save-btn:hover { background-color: #007ba7; }
+        
+        #calculation-order-container {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            border: 1px dashed #aaa;
+            border-radius: 5px;
+        }
+        .order-block {
+            padding: 15px 25px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            cursor: move;
+            text-align: center;
+            user-select: none;
+            border: 2px solid #ccc;
+        }
+        .order-block.dragging { opacity: 0.5; background: #b0b0b0; }
+        
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+            border-radius: 5px;
+        }
+        #results h3 { margin-top: 0; }
+        #results p { margin: 5px 0; font-size: 1.1em; }
+        #results #grand-total {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #d32f2f;
+            margin-top: 15px;
+        }
+        .save-feedback {
+            color: #4CAF50;
+            font-style: italic;
+            margin-left: 15px;
+            display: none;
+        }
+        .settings-area { margin-bottom: 15px; }
+        .settings-area label { font-weight: bold; }
+        .settings-area input { width: 60px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>餐費計算機</h1>
+
+    <div class="section">
+        <h2>1. 參與者/用餐人士 (同名人員項目會自動合併計算)</h2>
+        <div id="personnel-list"></div>
+        <button class="add-btn" onclick="addPersonnel()">新增項目</button>
+        <button class="temp-save-btn" onclick="showSaveFeedback(this)">暫存數據</button>
+        <span class="save-feedback">已儲存!</span>
+    </div>
+
+    <div class="section">
+        <h2>2. 均分費用區</h2>
+        <div id="shared-costs-list"></div>
+        <button class="add-btn" onclick="addSharedCost()">新增均分費用</button>
+        <button class="temp-save-btn" onclick="showSaveFeedback(this)">暫存數據</button>
+        <span class="save-feedback">已儲存!</span>
+    </div>
+
+    <div class="section">
+        <h2>3. 共同優惠區</h2>
+        <div id="shared-discounts-list"></div>
+        <button class="add-btn" onclick="addSharedDiscount()">新增共同優惠</button>
+        <button class="temp-save-btn" onclick="showSaveFeedback(this)">暫存數據</button>
+        <span class="save-feedback">已儲存!</span>
+    </div>
+    
+    <div class="section">
+        <h2>4. 計算方式 (可拖曳調整順序)</h2>
+        <div id="calculation-order-container"></div>
+    </div>
+
+    <div class="section">
+        <h2>5. 進行計算</h2>
+        <div class="settings-area">
+            <label>小數位數: 
+                <input type="number" id="decimal-places" min="0" max="10" 
+                       oninput="updateSettings('decimalPlaces', parseInt(this.value))">
+            </label>
+        </div>
+        <button class="calc-btn" onclick="calculate()">計算</button>
+        <div id="results">
+            <h3>計算結果</h3>
+            <div id="result-details">-- 等待計算 --</div>
+            <p id="grand-total"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'splitBillCalculatorData_v2';
+
+// 預設資料結構
+const defaultData = {
+    personnel: [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }],
+    sharedCosts: [],
+    sharedDiscounts: [],
+    calculationOrder: ['personnel', 'sharedDiscounts', 'sharedCosts'],
+    settings: {
+        decimalPlaces: 1
+    }
+};
+
+let appData = loadData();
+
+// ===== 資料處理 (存/讀) =====
+function saveData() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        console.log('Data saved to localStorage.');
+    } catch (e) {
+        console.error("Error saving data to localStorage:", e);
+        alert('儲存資料時發生錯誤！');
+    }
+}
+
+function loadData() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+        try {
+            const savedData = JSON.parse(data);
+            
+            // **[MODIFIED]** Handle migration for old sharedCosts format
+            if (savedData.sharedCosts && savedData.sharedCosts.length > 0) {
+                savedData.sharedCosts.forEach(sc => {
+                    if (typeof sc.amount !== 'undefined' && typeof sc.cost === 'undefined') {
+                        sc.cost = { type: 'amount', value: sc.amount, cap: 0 };
+                        delete sc.amount;
+                    }
+                });
+            }
+
+            return {
+                ...defaultData,
+                ...savedData,
+                settings: { ...defaultData.settings, ...(savedData.settings || {}) }
+            };
+        } catch (e) {
+            console.error("Error parsing data from localStorage:", e);
+            return JSON.parse(JSON.stringify(defaultData));
+        }
+    }
+    return JSON.parse(JSON.stringify(defaultData));
+}
+
+// ===== 渲染畫面 =====
+function render() {
+    renderPersonnel();
+    renderSharedCosts();
+    renderSharedDiscounts();
+    renderCalculationOrder();
+    renderSettings();
+}
+
+function renderPersonnel() {
+    const list = document.getElementById('personnel-list');
+    list.innerHTML = '';
+    appData.personnel.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.dataset.id = p.id;
+        div.innerHTML = `
+            <label>姓名: <input type="text" value="${p.name}" oninput="updatePersonnel(${p.id}, 'name', this.value)"></label>
+            <label>餐費: <input type="number" min="0" value="${p.mealCost}" oninput="updatePersonnel(${p.id}, 'mealCost', parseFloat(this.value) || 0)"></label>
+            <div class="discount-logic">
+                <label>折扣:</label>
+                <select onchange="updatePersonnel(${p.id}, 'discount.type', this.value)">
+                    <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
+                <input type="number" min="0" value="${p.discount.value}" oninput="updatePersonnel(${p.id}, 'discount.value', parseFloat(this.value) || 0)">
+                ${p.discount.type === 'percent' ? `
+                    <label>上限: <input type="number" min="0" value="${p.discount.cap}" oninput="updatePersonnel(${p.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
+                    <small>(0為無上限)</small>
+                ` : ''}
+            </div>
+            <button class="delete-btn" onclick="deletePersonnel(${p.id})">刪除</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// **[MODIFIED]** - Updated to handle new cost structure (amount/percent)
+function renderSharedCosts() {
+    const list = document.getElementById('shared-costs-list');
+    list.innerHTML = '';
+    appData.sharedCosts.forEach(sc => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.dataset.id = sc.id;
+        div.innerHTML = `
+            <label>費用名稱: <input type="text" value="${sc.name}" oninput="updateSharedCost(${sc.id}, 'name', this.value)"></label>
+            <div class="cost-logic">
+                <label>費用:</label>
+                <select onchange="updateSharedCost(${sc.id}, 'cost.type', this.value)">
+                    <option value="amount" ${sc.cost.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${sc.cost.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
+                <input type="number" min="0" value="${sc.cost.value}" oninput="updateSharedCost(${sc.id}, 'cost.value', parseFloat(this.value) || 0)">
+                ${sc.cost.type === 'percent' ? `
+                    <label>上限: <input type="number" min="0" value="${sc.cost.cap}" oninput="updateSharedCost(${sc.id}, 'cost.cap', parseFloat(this.value) || 0)"></label>
+                    <small>(0為無上限)</small>
+                ` : ''}
+            </div>
+            <label>攤分方式:
+                <select onchange="updateSharedCost(${sc.id}, 'method', this.value)">
+                    <option value="evenly" ${sc.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
+                    <option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
+                </select>
+            </label>
+            <button class="delete-btn" onclick="deleteSharedCost(${sc.id})">刪除</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function renderSharedDiscounts() {
+    const list = document.getElementById('shared-discounts-list');
+    list.innerHTML = '';
+    appData.sharedDiscounts.forEach(sd => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.dataset.id = sd.id;
+        div.innerHTML = `
+            <label>優惠名稱: <input type="text" value="${sd.name}" oninput="updateSharedDiscount(${sd.id}, 'name', this.value)"></label>
+            <div class="discount-logic">
+                <label>優惠:</label>
+                <select onchange="updateSharedDiscount(${sd.id}, 'discount.type', this.value)">
+                    <option value="amount" ${sd.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${sd.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
+                <input type="number" min="0" value="${sd.discount.value}" oninput="updateSharedDiscount(${sd.id}, 'discount.value', parseFloat(this.value) || 0)">
+                 ${sd.discount.type === 'percent' ? `
+                    <label>上限: <input type="number" min="0" value="${sd.discount.cap}" oninput="updateSharedDiscount(${sd.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
+                    <small>(0為無上限)</small>
+                ` : ''}
+            </div>
+            <label>攤分方式:
+                <select onchange="updateSharedDiscount(${sd.id}, 'method', this.value)">
+                    <option value="evenly" ${sd.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
+                    <option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
+                </select>
+            </label>
+            <button class="delete-btn" onclick="deleteSharedDiscount(${sd.id})">刪除</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function renderCalculationOrder() {
+    const container = document.getElementById('calculation-order-container');
+    container.innerHTML = '';
+    const nameMap = {
+        personnel: '人員區',
+        sharedDiscounts: '(-) 共同優惠區',
+        sharedCosts: '(+) 均分費用區'
+    };
+    appData.calculationOrder.forEach(key => {
+        const div = document.createElement('div');
+        div.className = 'order-block';
+        div.dataset.key = key;
+        div.draggable = true;
+        div.textContent = nameMap[key];
+        container.appendChild(div);
+    });
+    setupDragAndDrop();
+}
+
+function renderSettings() {
+    document.getElementById('decimal-places').value = appData.settings.decimalPlaces;
+}
+
+// ===== 動態增刪改 & 設定 =====
+function updateSettings(key, value) {
+    if (isNaN(value) || value < 0) value = 1;
+    if (value > 10) value = 10;
+    appData.settings[key] = value;
+    document.getElementById('decimal-places').value = value;
+    saveData();
+}
+
+function addPersonnel() {
+    appData.personnel.push({ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } });
+    saveData();
+    renderPersonnel();
+}
+function deletePersonnel(id) {
+    appData.personnel = appData.personnel.filter(p => p.id !== id);
+    saveData();
+    renderPersonnel();
+}
+function updatePersonnel(id, field, value) {
+    const person = appData.personnel.find(p => p.id === id);
+    if (!person) return;
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        person[obj][prop] = value;
+    } else {
+        person[field] = value;
+    }
+    saveData();
+    if (field === 'discount.type') {
+       renderPersonnel();
+    }
+}
+// **[MODIFIED]** - Add new shared cost with the new data structure
+function addSharedCost() {
+    appData.sharedCosts.push({ id: Date.now(), name: '', cost: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
+    saveData();
+    renderSharedCosts();
+}
+function deleteSharedCost(id) {
+    appData.sharedCosts = appData.sharedCosts.filter(sc => sc.id !== id);
+    saveData();
+    renderSharedCosts();
+}
+// **[MODIFIED]** - Update shared cost for nested properties and re-render on type change
+function updateSharedCost(id, field, value) {
+    const cost = appData.sharedCosts.find(sc => sc.id === id);
+    if (!cost) return;
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        cost[obj][prop] = value;
+    } else {
+        cost[field] = value;
+    }
+    saveData();
+    if (field === 'cost.type') {
+       renderSharedCosts();
+    }
+}
+function addSharedDiscount() {
+    appData.sharedDiscounts.push({ id: Date.now(), name: '', discount: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
+    saveData();
+    renderSharedDiscounts();
+}
+function deleteSharedDiscount(id) {
+    appData.sharedDiscounts = appData.sharedDiscounts.filter(sd => sd.id !== id);
+    saveData();
+    renderSharedDiscounts();
+}
+function updateSharedDiscount(id, field, value) {
+    const discount = appData.sharedDiscounts.find(sd => sd.id === id);
+    if (!discount) return;
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        discount[obj][prop] = value;
+    } else {
+        discount[field] = value;
+    }
+    saveData();
+    if (field === 'discount.type') {
+       renderSharedDiscounts();
+    }
+}
+
+// ===== 拖曳排序功能 =====
+function setupDragAndDrop() {
+    const container = document.getElementById('calculation-order-container');
+    const blocks = document.querySelectorAll('.order-block');
+    let draggedItem = null;
+
+    blocks.forEach(block => {
+        block.addEventListener('dragstart', (e) => {
+            draggedItem = e.target;
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        });
+        block.addEventListener('dragend', () => {
+            if (draggedItem) draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+
+    container.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(container, e.clientX);
+        if (draggedItem) {
+            if (afterElement == null) container.appendChild(draggedItem);
+            else container.insertBefore(draggedItem, afterElement);
+        }
+    });
+    
+    container.addEventListener('drop', e => {
+        e.preventDefault();
+        const newOrder = [...container.querySelectorAll('.order-block')].map(b => b.dataset.key);
+        appData.calculationOrder = newOrder;
+        saveData();
+    });
+}
+function getDragAfterElement(container, x) {
+    const draggableElements = [...container.querySelectorAll('.order-block:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// ===== 計算邏輯 =====
+function calculate() {
+    // 1. 合併同名人員資料
+    const aggregatedPersonnel = {};
+    appData.personnel.forEach(p => {
+        const name = p.name.trim() || '未命名';
+        if (!aggregatedPersonnel[name]) {
+            aggregatedPersonnel[name] = {
+                name: name,
+                baseMealCost: 0, // 總餐費(折扣前)
+                finalAmount: 0   // 個人項目結算後金額
+            };
+        }
+        
+        let cost = p.mealCost;
+        let discountAmount = 0;
+        if (p.discount.type === 'amount') {
+            discountAmount = p.discount.value;
+        } else if (p.discount.type === 'percent') {
+            discountAmount = cost * (p.discount.value / 100);
+            if (p.discount.cap > 0 && discountAmount > p.discount.cap) {
+                discountAmount = p.discount.cap;
+            }
+        }
+        
+        aggregatedPersonnel[name].baseMealCost += cost;
+        aggregatedPersonnel[name].finalAmount += (cost - discountAmount);
+    });
+
+    let results = Object.values(aggregatedPersonnel);
+
+    if (results.length === 0) {
+        alert('請至少新增一位人員！');
+        return;
+    }
+    
+    const totalBaseMealCost = results.reduce((sum, p) => sum + p.baseMealCost, 0);
+
+    // 2. 依照順序處理共同項目
+    appData.calculationOrder.forEach(step => {
+        if (step === 'sharedDiscounts') {
+            let currentTotalBeforeDiscount = results.reduce((sum, r) => sum + r.finalAmount, 0);
+            processSharedDiscounts(results, totalBaseMealCost, currentTotalBeforeDiscount);
+        } else if (step === 'sharedCosts') {
+            processSharedCosts(results, totalBaseMealCost);
+        }
+    });
+
+    // 3. 顯示結果
+    displayResults(results);
+}
+
+function processSharedDiscounts(results, totalBaseMealCost, currentTotal) {
+    appData.sharedDiscounts.forEach(sd => {
+        let totalDiscountValue = 0;
+        if (sd.discount.type === 'amount') {
+            totalDiscountValue = sd.discount.value;
+        } else { // percent
+            totalDiscountValue = currentTotal * (sd.discount.value / 100);
+            if (sd.discount.cap > 0 && totalDiscountValue > sd.discount.cap) {
+                totalDiscountValue = sd.discount.cap;
+            }
+        }
+
+        if (sd.method === 'evenly') {
+            if (results.length > 0) {
+                const discountPerPerson = totalDiscountValue / results.length;
+                results.forEach(r => r.finalAmount -= discountPerPerson);
+            }
+        } else { // proportionally
+            if (totalBaseMealCost > 0) {
+                results.forEach(r => {
+                    const proportion = r.baseMealCost / totalBaseMealCost;
+                    r.finalAmount -= (totalDiscountValue * proportion);
+                });
+            }
+        }
+    });
+}
+
+// **[MODIFIED]** - Updated calculation logic for shared costs
+function processSharedCosts(results, totalBaseMealCost) {
+    appData.sharedCosts.forEach(sc => {
+        let totalCostValue = 0;
+        if (sc.cost.type === 'amount') {
+            totalCostValue = sc.cost.value;
+        } else { // percent
+            // Percentage cost is based on the total base meal cost
+            totalCostValue = totalBaseMealCost * (sc.cost.value / 100);
+            if (sc.cost.cap > 0 && totalCostValue > sc.cost.cap) {
+                totalCostValue = sc.cost.cap;
+            }
+        }
+
+        if (sc.method === 'evenly') {
+            if (results.length > 0) {
+                const costPerPerson = totalCostValue / results.length;
+                results.forEach(r => r.finalAmount += costPerPerson);
+            }
+        } else { // proportionally
+            if (totalBaseMealCost > 0) {
+                 results.forEach(r => {
+                    const proportion = r.baseMealCost / totalBaseMealCost;
+                    r.finalAmount += (totalCostValue * proportion);
+                });
+            }
+        }
+    });
+}
+
+function displayResults(results) {
+    const detailsDiv = document.getElementById('result-details');
+    const grandTotalP = document.getElementById('grand-total');
+    const decimalPlaces = appData.settings.decimalPlaces;
+    const multiplier = 10 ** decimalPlaces;
+    
+    detailsDiv.innerHTML = '';
+    let grandTotal = 0;
+
+    results.forEach(r => {
+        const finalAmount = r.finalAmount < 0 ? 0 : r.finalAmount;
+        const finalAmountRounded = Math.round(finalAmount * multiplier) / multiplier;
+        grandTotal += finalAmountRounded;
+
+        const p = document.createElement('p');
+        p.textContent = `${r.name} 應付: $ ${finalAmountRounded.toFixed(decimalPlaces)}`;
+        detailsDiv.appendChild(p);
+    });
+
+    grandTotalP.textContent = `收款總計: $ ${grandTotal.toFixed(decimalPlaces)}`;
+}
+
+// ===== 其他 UI 功能 =====
+function showSaveFeedback(button) {
+    saveData();
+    const feedback = button.nextElementSibling;
+    feedback.style.display = 'inline';
+    setTimeout(() => { feedback.style.display = 'none'; }, 1500);
+}
+
+// ===== 初始化 =====
+document.addEventListener('DOMContentLoaded', () => {
+    render();
+});
+</script>
+
+</body>
+</html>
