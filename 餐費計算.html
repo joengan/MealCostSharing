@@ -268,22 +268,62 @@ function renderPersonnel() {
             div.dataset.id = p.id;
             div.draggable = true;
             div.innerHTML = `
-                <label>姓名: <input type="text" value="${p.name}" oninput="updatePersonnel(${p.id}, 'name', this.value)"></label>
-                <label>餐費: <input type="number" min="0" value="${p.mealCost}" oninput="updatePersonnel(${p.id}, 'mealCost', parseFloat(this.value) || 0)"></label>
+                <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}"></label>
+                <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
                 <div class="discount-logic">
                     <label>折扣:</label>
-                    <select onchange="updatePersonnel(${p.id}, 'discount.type', this.value)">
+                    <select class="person-discount-type" data-id="${p.id}">
                         <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
                         <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
                     </select>
-                    <input type="number" min="0" value="${p.discount.value}" oninput="updatePersonnel(${p.id}, 'discount.value', parseFloat(this.value) || 0)">
+                    <input type="number" min="0" value="${p.discount.value}" class="person-discount-value" data-id="${p.id}">
                     ${p.discount.type === 'percent' ? `
-                        <label>上限: <input type="number" min="0" value="${p.discount.cap}" oninput="updatePersonnel(${p.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
+                        <label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label>
                         <small>(0為無上限)</small>
                     ` : ''}
                 </div>
                 <button class="delete-btn" onclick="deletePersonnel(${p.id})">刪除</button>
             `;
+    // 統一監聽 input 事件
+    setTimeout(() => {
+        // 姓名 input onchange
+        list.querySelectorAll('.person-name-input').forEach(input => {
+            input.onchange = function() {
+                const id = parseInt(this.dataset.id);
+                updatePersonnel(id, 'name', this.value);
+                renderPersonnel(); // 立即分組
+            };
+        });
+        // 餐費 input oninput
+        list.querySelectorAll('.person-mealcost-input').forEach(input => {
+            input.oninput = function() {
+                const id = parseInt(this.dataset.id);
+                updatePersonnel(id, 'mealCost', parseFloat(this.value) || 0);
+            };
+        });
+        // 折扣型態 select onchange
+        list.querySelectorAll('.person-discount-type').forEach(sel => {
+            sel.onchange = function() {
+                const id = parseInt(this.dataset.id);
+                updatePersonnel(id, 'discount.type', this.value);
+                renderPersonnel();
+            };
+        });
+        // 折扣值 input oninput
+        list.querySelectorAll('.person-discount-value').forEach(input => {
+            input.oninput = function() {
+                const id = parseInt(this.dataset.id);
+                updatePersonnel(id, 'discount.value', parseFloat(this.value) || 0);
+            };
+        });
+        // 折扣上限 input oninput
+        list.querySelectorAll('.person-discount-cap').forEach(input => {
+            input.oninput = function() {
+                const id = parseInt(this.dataset.id);
+                updatePersonnel(id, 'discount.cap', parseFloat(this.value) || 0);
+            };
+        });
+    }, 0);
             itemsDiv.appendChild(div);
         });
         list.appendChild(itemsDiv);
