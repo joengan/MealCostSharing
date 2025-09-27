@@ -240,28 +240,100 @@ function render() {
 function renderPersonnel() {
     const list = document.getElementById('personnel-list');
     list.innerHTML = '';
+    // 分組：同名聚集
+    const groupMap = {};
     appData.personnel.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.dataset.id = p.id;
-        div.innerHTML = `
-            <label>姓名: <input type="text" value="${p.name}" oninput="updatePersonnel(${p.id}, 'name', this.value)"></label>
-            <label>餐費: <input type="number" min="0" value="${p.mealCost}" oninput="updatePersonnel(${p.id}, 'mealCost', parseFloat(this.value) || 0)"></label>
-            <div class="discount-logic">
-                <label>折扣:</label>
-                <select onchange="updatePersonnel(${p.id}, 'discount.type', this.value)">
-                    <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
-                    <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
-                </select>
-                <input type="number" min="0" value="${p.discount.value}" oninput="updatePersonnel(${p.id}, 'discount.value', parseFloat(this.value) || 0)">
-                ${p.discount.type === 'percent' ? `
-                    <label>上限: <input type="number" min="0" value="${p.discount.cap}" oninput="updatePersonnel(${p.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
-                    <small>(0為無上限)</small>
-                ` : ''}
-            </div>
-            <button class="delete-btn" onclick="deletePersonnel(${p.id})">刪除</button>
-        `;
-        list.appendChild(div);
+        const name = p.name.trim() || '未命名';
+        if (!groupMap[name]) groupMap[name] = [];
+        groupMap[name].push(p);
+    });
+    Object.keys(groupMap).forEach((name, idx) => {
+        // group header
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'item-row';
+        groupDiv.style.background = '#f0f0f0';
+        groupDiv.style.cursor = 'pointer';
+        groupDiv.style.fontWeight = 'bold';
+        groupDiv.innerHTML = `<span>${name} (${groupMap[name].length})</span> <button onclick="toggleGroup('${name}')">展開/收合</button>`;
+        list.appendChild(groupDiv);
+        // group items
+        const itemsDiv = document.createElement('div');
+        itemsDiv.className = 'personnel-group-items';
+        itemsDiv.dataset.group = name;
+        itemsDiv.style.marginLeft = '20px';
+        itemsDiv.style.display = window.personnelGroupState?.[name] === false ? 'none' : 'block';
+        groupMap[name].forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'item-row draggable-personnel';
+            div.dataset.id = p.id;
+            div.draggable = true;
+            div.innerHTML = `
+                <label>姓名: <input type="text" value="${p.name}" oninput="updatePersonnel(${p.id}, 'name', this.value)"></label>
+                <label>餐費: <input type="number" min="0" value="${p.mealCost}" oninput="updatePersonnel(${p.id}, 'mealCost', parseFloat(this.value) || 0)"></label>
+                <div class="discount-logic">
+                    <label>折扣:</label>
+                    <select onchange="updatePersonnel(${p.id}, 'discount.type', this.value)">
+                        <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                        <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                    </select>
+                    <input type="number" min="0" value="${p.discount.value}" oninput="updatePersonnel(${p.id}, 'discount.value', parseFloat(this.value) || 0)">
+                    ${p.discount.type === 'percent' ? `
+                        <label>上限: <input type="number" min="0" value="${p.discount.cap}" oninput="updatePersonnel(${p.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
+                        <small>(0為無上限)</small>
+                    ` : ''}
+                </div>
+                <button class="delete-btn" onclick="deletePersonnel(${p.id})">刪除</button>
+            `;
+            itemsDiv.appendChild(div);
+        });
+        list.appendChild(itemsDiv);
+    });
+    setupPersonnelDragAndDrop();
+}
+// 展開/收合分組
+window.personnelGroupState = {};
+function toggleGroup(name) {
+    window.personnelGroupState[name] = window.personnelGroupState[name] === false ? true : false;
+    renderPersonnel();
+}
+
+// 拖曳排序（分組內）
+function setupPersonnelDragAndDrop() {
+    const groups = document.querySelectorAll('.personnel-group-items');
+    groups.forEach(itemsDiv => {
+        let draggedItem = null;
+        const draggables = itemsDiv.querySelectorAll('.draggable-personnel');
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedItem = item;
+                setTimeout(() => item.classList.add('dragging'), 0);
+            });
+            item.addEventListener('dragend', () => {
+                if (draggedItem) draggedItem.classList.remove('dragging');
+                draggedItem = null;
+            });
+        });
+        itemsDiv.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(itemsDiv, e.clientY);
+            if (draggedItem) {
+                if (afterElement == null) itemsDiv.appendChild(draggedItem);
+                else itemsDiv.insertBefore(draggedItem, afterElement);
+            }
+        });
+        itemsDiv.addEventListener('drop', e => {
+            e.preventDefault();
+            // 取得新順序
+            const newOrder = [...itemsDiv.querySelectorAll('.draggable-personnel')].map(div => parseInt(div.dataset.id));
+            // 只調整該分組
+            const groupName = itemsDiv.dataset.group;
+            const oldGroup = appData.personnel.filter(p => (p.name.trim() || '未命名') === groupName);
+            const other = appData.personnel.filter(p => (p.name.trim() || '未命名') !== groupName);
+            const newGroup = newOrder.map(id => oldGroup.find(p => p.id === id)).filter(Boolean);
+            appData.personnel = [...other, ...newGroup];
+            saveData();
+            renderPersonnel();
+        });
     });
 }
 
@@ -271,8 +343,9 @@ function renderSharedCosts() {
     list.innerHTML = '';
     appData.sharedCosts.forEach(sc => {
         const div = document.createElement('div');
-        div.className = 'item-row';
+        div.className = 'item-row draggable-shared-cost';
         div.dataset.id = sc.id;
+        div.draggable = true;
         div.innerHTML = `
             <label>費用名稱: <input type="text" value="${sc.name}" oninput="updateSharedCost(${sc.id}, 'name', this.value)"></label>
             <div class="cost-logic">
@@ -297,6 +370,40 @@ function renderSharedCosts() {
         `;
         list.appendChild(div);
     });
+    setupSharedCostDragAndDrop();
+}
+// 拖曳排序（均分費用區）
+function setupSharedCostDragAndDrop() {
+    const list = document.getElementById('shared-costs-list');
+    let draggedItem = null;
+    const draggables = list.querySelectorAll('.draggable-shared-cost');
+    draggables.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            draggedItem = item;
+            setTimeout(() => item.classList.add('dragging'), 0);
+        });
+        item.addEventListener('dragend', () => {
+            if (draggedItem) draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+    list.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(list, e.clientY);
+        if (draggedItem) {
+            if (afterElement == null) list.appendChild(draggedItem);
+            else list.insertBefore(draggedItem, afterElement);
+        }
+    });
+    list.addEventListener('drop', e => {
+        e.preventDefault();
+        // 取得新順序
+        const newOrder = [...list.querySelectorAll('.draggable-shared-cost')].map(div => parseInt(div.dataset.id));
+        const newArr = newOrder.map(id => appData.sharedCosts.find(sc => sc.id === id)).filter(Boolean);
+        appData.sharedCosts = newArr;
+        saveData();
+        renderSharedCosts();
+    });
 }
 
 function renderSharedDiscounts() {
@@ -304,8 +411,9 @@ function renderSharedDiscounts() {
     list.innerHTML = '';
     appData.sharedDiscounts.forEach(sd => {
         const div = document.createElement('div');
-        div.className = 'item-row';
+        div.className = 'item-row draggable-shared-discount';
         div.dataset.id = sd.id;
+        div.draggable = true;
         div.innerHTML = `
             <label>優惠名稱: <input type="text" value="${sd.name}" oninput="updateSharedDiscount(${sd.id}, 'name', this.value)"></label>
             <div class="discount-logic">
@@ -329,6 +437,40 @@ function renderSharedDiscounts() {
             <button class="delete-btn" onclick="deleteSharedDiscount(${sd.id})">刪除</button>
         `;
         list.appendChild(div);
+    });
+    setupSharedDiscountDragAndDrop();
+}
+// 拖曳排序（共同優惠區）
+function setupSharedDiscountDragAndDrop() {
+    const list = document.getElementById('shared-discounts-list');
+    let draggedItem = null;
+    const draggables = list.querySelectorAll('.draggable-shared-discount');
+    draggables.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            draggedItem = item;
+            setTimeout(() => item.classList.add('dragging'), 0);
+        });
+        item.addEventListener('dragend', () => {
+            if (draggedItem) draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+    list.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(list, e.clientY);
+        if (draggedItem) {
+            if (afterElement == null) list.appendChild(draggedItem);
+            else list.insertBefore(draggedItem, afterElement);
+        }
+    });
+    list.addEventListener('drop', e => {
+        e.preventDefault();
+        // 取得新順序
+        const newOrder = [...list.querySelectorAll('.draggable-shared-discount')].map(div => parseInt(div.dataset.id));
+        const newArr = newOrder.map(id => appData.sharedDiscounts.find(sd => sd.id === id)).filter(Boolean);
+        appData.sharedDiscounts = newArr;
+        saveData();
+        renderSharedDiscounts();
     });
 }
 
@@ -472,11 +614,15 @@ function setupDragAndDrop() {
         saveData();
     });
 }
-function getDragAfterElement(container, x) {
-    const draggableElements = [...container.querySelectorAll('.order-block:not(.dragging)')];
+function getDragAfterElement(container, yOrX) {
+    // 支援 order-block (橫向) 與 personnel (縱向)
+    const draggableElements = [...container.querySelectorAll(':scope > .draggable-personnel:not(.dragging), :scope > .order-block:not(.dragging)')];
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
-        const offset = x - box.left - box.width / 2;
+        // 橫向拖曳用 x，縱向拖曳用 y
+        const offset = (child.classList.contains('order-block'))
+            ? yOrX - box.left - box.width / 2
+            : yOrX - box.top - box.height / 2;
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
         } else {
