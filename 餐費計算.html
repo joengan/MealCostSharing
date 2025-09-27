@@ -51,15 +51,30 @@
             gap: 5px;
         }
         .delete-btn {
-            background-color: #f44336;
-            color: white;
+            background-color: transparent;
+            color: #d32f2f;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 5px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
         }
-        .delete-btn:hover { background-color: #d32f2f; }
+        .delete-btn:hover { background-color: #ffeaea; }
+        .delete-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+        .delete-fallback {
+            font-size: 14px;
+            color: white;
+            background-color: #f44336;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
         .add-btn, .calc-btn, .temp-save-btn {
             background-color: #4CAF50;
             color: white;
@@ -277,7 +292,10 @@ function renderPersonnel() {
                         <small>(0為無上限)</small>
                     ` : ''}
                 </div>
-                <button class="delete-btn" onclick="deletePersonnel(${p.id})">刪除</button>
+                <button class="delete-btn" onclick="deletePersonnel(${p.id})">
+                  <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+                  <span class="delete-fallback" style="display:none;">刪除</span>
+                </button>
             `;
     // 統一監聽 input 事件
     setTimeout(() => {
@@ -401,7 +419,10 @@ function renderSharedCosts() {
                     <option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
                 </select>
             </label>
-            <button class="delete-btn" onclick="deleteSharedCost(${sc.id})">刪除</button>
+            <button class="delete-btn" onclick="deleteSharedCost(${sc.id})">
+              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+              <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
         `;
         list.appendChild(div);
     });
@@ -469,7 +490,10 @@ function renderSharedDiscounts() {
                     <option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
                 </select>
             </label>
-            <button class="delete-btn" onclick="deleteSharedDiscount(${sd.id})">刪除</button>
+            <button class="delete-btn" onclick="deleteSharedDiscount(${sd.id})">
+              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+              <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
         `;
         list.appendChild(div);
     });
@@ -809,6 +833,19 @@ function showSaveFeedback(button) {
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
     render();
+});
+
+// 檢查瀏覽器是否支援 emoji 🗑️，不支援則顯示文字
+function supportsTrashEmoji() {
+    const span = document.createElement('span');
+    span.innerHTML = '🗑️';
+    return span.innerHTML.length > 0 && span.innerText === '🗑️';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    if (!supportsTrashEmoji()) {
+        document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none');
+        document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline');
+    }
 });
 </script>
 
