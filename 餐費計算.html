@@ -337,74 +337,50 @@ function render() {
 function renderPersonnel() {
     const list = document.getElementById('personnel-list');
     list.innerHTML = '';
-    // 分組：同名聚集
-    const groupMap = {};
     appData.personnel.forEach(p => {
-        const name = p.name.trim() || '未命名';
-        if (!groupMap[name]) groupMap[name] = [];
-        groupMap[name].push(p);
+        const div = document.createElement('div');
+        div.className = 'item-row draggable-personnel';
+        div.dataset.id = p.id;
+        div.draggable = true;
+        div.innerHTML = `
+            <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}" list="common-person-datalist"></label>
+            <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
+            <div class="discount-logic">
+                <label>折扣:</label>
+                <select class="person-discount-type" data-id="${p.id}">
+                    <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
+                <input type="number" min="0" value="${p.discount.value}" class="person-discount-value" data-id="${p.id}">
+                ${p.discount.type === 'percent' ? `
+                    <label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label>
+                    <small>(0為無上限)</small>
+                ` : ''}
+            </div>
+            <button class="delete-btn" onclick="deletePersonnel(${p.id})">
+              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+              <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
+        `;
+        list.appendChild(div);
     });
-    Object.keys(groupMap).forEach((name, idx) => {
-        // group header
-        const groupDiv = document.createElement('div');
-        groupDiv.className = 'item-row';
-        groupDiv.style.background = '#f0f0f0';
-        groupDiv.style.cursor = 'pointer';
-        groupDiv.style.fontWeight = 'bold';
-    groupDiv.innerHTML = `<span>${name} (${groupMap[name].length})</span>`;
-    groupDiv.onclick = function() { toggleGroup(name); };
-    list.appendChild(groupDiv);
-        // group items
-        const itemsDiv = document.createElement('div');
-        itemsDiv.className = 'personnel-group-items';
-        itemsDiv.dataset.group = name;
-        itemsDiv.style.marginLeft = '20px';
-        itemsDiv.style.display = window.personnelGroupState?.[name] === false ? 'none' : 'block';
-        groupMap[name].forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'item-row draggable-personnel';
-            div.dataset.id = p.id;
-            div.draggable = true;
-            div.innerHTML = `
-                <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}" list="common-person-datalist"></label>
-                <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
-                <div class="discount-logic">
-                    <label>折扣:</label>
-                    <select class="person-discount-type" data-id="${p.id}">
-                        <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
-                        <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
-                    </select>
-                    <input type="number" min="0" value="${p.discount.value}" class="person-discount-value" data-id="${p.id}">
-                    ${p.discount.type === 'percent' ? `
-                        <label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label>
-                        <small>(0為無上限)</small>
-                    ` : ''}
-                </div>
-                <button class="delete-btn" onclick="deletePersonnel(${p.id})">
-                  <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
-                  <span class="delete-fallback" style="display:none;">刪除</span>
-                </button>
-            `;
     // 統一監聽 input 事件
     setTimeout(() => {
-        // 姓名 input onchange
         list.querySelectorAll('.person-name-input').forEach(input => {
             input.onchange = function() {
                 const id = parseInt(this.dataset.id);
                 updatePersonnel(id, 'name', this.value);
                 addCommonInfo('person', this.value);
                 updateCommonDatalists();
-                renderPersonnel(); // 立即分組
+                renderPersonnel();
             };
         });
-        // 餐費 input oninput
         list.querySelectorAll('.person-mealcost-input').forEach(input => {
             input.oninput = function() {
                 const id = parseInt(this.dataset.id);
                 updatePersonnel(id, 'mealCost', parseFloat(this.value) || 0);
             };
         });
-        // 折扣型態 select onchange
         list.querySelectorAll('.person-discount-type').forEach(sel => {
             sel.onchange = function() {
                 const id = parseInt(this.dataset.id);
@@ -412,14 +388,12 @@ function renderPersonnel() {
                 renderPersonnel();
             };
         });
-        // 折扣值 input oninput
         list.querySelectorAll('.person-discount-value').forEach(input => {
             input.oninput = function() {
                 const id = parseInt(this.dataset.id);
                 updatePersonnel(id, 'discount.value', parseFloat(this.value) || 0);
             };
         });
-        // 折扣上限 input oninput
         list.querySelectorAll('.person-discount-cap').forEach(input => {
             input.oninput = function() {
                 const id = parseInt(this.dataset.id);
@@ -427,56 +401,41 @@ function renderPersonnel() {
             };
         });
     }, 0);
-            itemsDiv.appendChild(div);
-        });
-        list.appendChild(itemsDiv);
-    });
     setupPersonnelDragAndDrop();
 }
-// 展開/收合分組
-window.personnelGroupState = {};
-function toggleGroup(name) {
-    window.personnelGroupState[name] = window.personnelGroupState[name] === false ? true : false;
-    renderPersonnel();
-}
 
-// 拖曳排序（分組內）
+
+// 拖曳排序（人員區）
 function setupPersonnelDragAndDrop() {
-    const groups = document.querySelectorAll('.personnel-group-items');
-    groups.forEach(itemsDiv => {
-        let draggedItem = null;
-        const draggables = itemsDiv.querySelectorAll('.draggable-personnel');
-        draggables.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                draggedItem = item;
-                setTimeout(() => item.classList.add('dragging'), 0);
-            });
-            item.addEventListener('dragend', () => {
-                if (draggedItem) draggedItem.classList.remove('dragging');
-                draggedItem = null;
-            });
+    const list = document.getElementById('personnel-list');
+    let draggedItem = null;
+    const draggables = list.querySelectorAll('.draggable-personnel');
+    draggables.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            draggedItem = item;
+            setTimeout(() => item.classList.add('dragging'), 0);
         });
-        itemsDiv.addEventListener('dragover', e => {
-            e.preventDefault();
-            const afterElement = getDragAfterElement(itemsDiv, e.clientY);
-            if (draggedItem) {
-                if (afterElement == null) itemsDiv.appendChild(draggedItem);
-                else itemsDiv.insertBefore(draggedItem, afterElement);
-            }
+        item.addEventListener('dragend', () => {
+            if (draggedItem) draggedItem.classList.remove('dragging');
+            draggedItem = null;
         });
-        itemsDiv.addEventListener('drop', e => {
-            e.preventDefault();
-            // 取得新順序
-            const newOrder = [...itemsDiv.querySelectorAll('.draggable-personnel')].map(div => parseInt(div.dataset.id));
-            // 只調整該分組
-            const groupName = itemsDiv.dataset.group;
-            const oldGroup = appData.personnel.filter(p => (p.name.trim() || '未命名') === groupName);
-            const other = appData.personnel.filter(p => (p.name.trim() || '未命名') !== groupName);
-            const newGroup = newOrder.map(id => oldGroup.find(p => p.id === id)).filter(Boolean);
-            appData.personnel = [...other, ...newGroup];
-            saveData();
-            renderPersonnel();
-        });
+    });
+    list.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(list, e.clientY);
+        if (draggedItem) {
+            if (afterElement == null) list.appendChild(draggedItem);
+            else list.insertBefore(draggedItem, afterElement);
+        }
+    });
+    list.addEventListener('drop', e => {
+        e.preventDefault();
+        // 取得新順序
+        const newOrder = [...list.querySelectorAll('.draggable-personnel')].map(div => parseInt(div.dataset.id));
+        const newArr = newOrder.map(id => appData.personnel.find(p => p.id === id)).filter(Boolean);
+        appData.personnel = newArr;
+        saveData();
+        renderPersonnel();
     });
 }
 
