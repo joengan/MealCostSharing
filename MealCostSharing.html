@@ -380,6 +380,17 @@
       <div class="modal-content">
         <span class="close-modal" title="關閉">&times;</span>
         <h2>常用資訊管理</h2>
+                <div class="common-list-block">
+                    <h3>偏好設定</h3>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight:bold;">刪除前確認</span>
+                        <label class="switch">
+                            <input type="checkbox" id="confirm-delete-toggle" onchange="updateSettings('confirmDelete', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <small>關閉後，刪除動作將不再跳出確認提示。</small>
+                    </div>
+                </div>
         <div class="common-list-block">
           <h3>人員名稱</h3>
           <ul id="common-person-list" class="common-list"></ul>
@@ -412,7 +423,9 @@ const defaultData = {
     settings: {
         decimalPlaces: 1,
     roundingMethod: 'round', // 新增進位方式，預設四捨五入
-    showSteps: false
+    showSteps: false,
+    // 刪除前確認（預設開啟，可於設定視窗切換）
+    confirmDelete: true
     }
 };
 
@@ -740,6 +753,8 @@ function renderSettings() {
     const showSteps = !!appData.settings.showSteps;
     const toggle = document.getElementById('show-steps-toggle');
     if (toggle) toggle.checked = showSteps;
+    const cdToggle = document.getElementById('confirm-delete-toggle');
+    if (cdToggle) cdToggle.checked = !!appData.settings.confirmDelete;
     const ul = document.getElementById('calc-steps');
     if (ul) ul.style.display = showSteps ? 'block' : 'none';
 }
@@ -758,6 +773,10 @@ function updateSettings(key, value) {
         appData.settings[key] = !!value;
         const ul = document.getElementById('calc-steps');
         if (ul) ul.style.display = appData.settings[key] ? 'block' : 'none';
+    } else if (key === 'confirmDelete') {
+        appData.settings[key] = !!value;
+        const t = document.getElementById('confirm-delete-toggle');
+        if (t) t.checked = appData.settings[key];
     }
     saveData();
 }
@@ -768,6 +787,11 @@ function addPersonnel() {
     renderPersonnel();
 }
 function deletePersonnel(id) {
+    if (appData.settings.confirmDelete) {
+        const p = appData.personnel.find(x => x.id === id);
+        const name = p ? (p.name || '未命名') : '';
+        if (!confirm(`確定要刪除人員「${name}」嗎？`)) return;
+    }
     appData.personnel = appData.personnel.filter(p => p.id !== id);
     saveData();
     renderPersonnel();
@@ -793,6 +817,11 @@ function addSharedCost() {
     renderSharedCosts();
 }
 function deleteSharedCost(id) {
+    if (appData.settings.confirmDelete) {
+        const c = appData.sharedCosts.find(x => x.id === id);
+        const name = c ? (c.name || '未命名費用') : '';
+        if (!confirm(`確定要刪除費用「${name}」嗎？`)) return;
+    }
     appData.sharedCosts = appData.sharedCosts.filter(sc => sc.id !== id);
     saveData();
     renderSharedCosts();
@@ -822,6 +851,11 @@ function addSharedDiscount() {
     renderSharedDiscounts();
 }
 function deleteSharedDiscount(id) {
+    if (appData.settings.confirmDelete) {
+        const d = appData.sharedDiscounts.find(x => x.id === id);
+        const name = d ? (d.name || '未命名優惠') : '';
+        if (!confirm(`確定要刪除優惠「${name}」嗎？`)) return;
+    }
     appData.sharedDiscounts = appData.sharedDiscounts.filter(sd => sd.id !== id);
     saveData();
     renderSharedDiscounts();
@@ -1173,8 +1207,11 @@ const settingsBtn = document.getElementById('settings-btn');
 const closeModalBtn = document.querySelector('.close-modal');
 
 settingsBtn.onclick = function() {
-    modal.style.display = 'block';
-    renderCommonInfo();
+    modal.style.display = 'flex';
+    renderCommonInfoLists();
+    // 同步刪除確認開關狀態
+    const cdToggle = document.getElementById('confirm-delete-toggle');
+    if (cdToggle) cdToggle.checked = !!appData.settings.confirmDelete;
 }
 
 closeModalBtn.onclick = function() {
@@ -1230,6 +1267,12 @@ function renderCommonInfoLists() {
     });
 }
 function deleteCommonInfoItem(type, idx) {
+    if (appData.settings.confirmDelete) {
+        const name = commonInfo[type][idx];
+        const map = { person: '人員', cost: '費用', discount: '優惠' };
+        const label = map[type] || type;
+        if (!confirm(`確定要刪除「${label}：${name}」嗎？`)) return;
+    }
     commonInfo[type].splice(idx,1);
     saveCommonInfo(commonInfo);
     updateCommonDatalists();
