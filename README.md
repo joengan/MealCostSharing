@@ -81,3 +81,8 @@
 
 ## 授權
 - 本專案以 MIT 授權釋出，詳見 `LICENSE`。
+
+## 線上使用
+
+你可以透過以下連結直接使用此工具：
+[餐費計算工具](https://joengan.github.io/MealCostSharing/MealCostSharing.html)
