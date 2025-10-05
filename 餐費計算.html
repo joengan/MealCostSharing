@@ -457,7 +457,7 @@ function renderSharedCosts() {
         div.dataset.id = sc.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>費用名稱: <input type="text" value="${sc.name}" oninput="updateSharedCost(${sc.id}, 'name', this.value)" list="common-cost-datalist"></label>
+            <label>費用名稱: <input type="text" value="${sc.name}" onchange="updateSharedCost(${sc.id}, 'name', this.value)" list="common-cost-datalist"></label>
             <div class="cost-logic">
                 <label>費用:</label>
                 <select onchange="updateSharedCost(${sc.id}, 'cost.type', this.value)">
@@ -528,7 +528,7 @@ function renderSharedDiscounts() {
         div.dataset.id = sd.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>優惠名稱: <input type="text" value="${sd.name}" oninput="updateSharedDiscount(${sd.id}, 'name', this.value)" list="common-discount-datalist"></label>
+            <label>優惠名稱: <input type="text" value="${sd.name}" onchange="updateSharedDiscount(${sd.id}, 'name', this.value)" list="common-discount-datalist"></label>
             <div class="discount-logic">
                 <label>優惠:</label>
                 <select onchange="updateSharedDiscount(${sd.id}, 'discount.type', this.value)">
@@ -673,6 +673,10 @@ function updateSharedCost(id, field, value) {
     } else {
         cost[field] = value;
     }
+    if (field === 'name') {
+        addCommonInfo('cost', value);
+        updateCommonDatalists();
+    }
     saveData();
     if (field === 'cost.type') {
        renderSharedCosts();
@@ -696,6 +700,10 @@ function updateSharedDiscount(id, field, value) {
         discount[obj][prop] = value;
     } else {
         discount[field] = value;
+    }
+    if (field === 'name') {
+        addCommonInfo('discount', value);
+        updateCommonDatalists();
     }
     saveData();
     if (field === 'discount.type') {
@@ -1056,6 +1064,7 @@ function renderCommonInfoLists() {
 function deleteCommonInfoItem(type, idx) {
     commonInfo[type].splice(idx,1);
     saveCommonInfo(commonInfo);
+    updateCommonDatalists();
     renderCommonInfoLists();
 }
 function setupCommonListDragAndDrop(ul, type) {
@@ -1084,6 +1093,7 @@ function setupCommonListDragAndDrop(ul, type) {
         const newArr = newOrder.map(i => commonInfo[type][i]);
         commonInfo[type] = newArr;
         saveCommonInfo(commonInfo);
+    updateCommonDatalists();
         renderCommonInfoLists();
     });
 }
