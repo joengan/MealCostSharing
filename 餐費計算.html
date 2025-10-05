@@ -108,6 +108,10 @@
             padding: 10px;
             border: 1px dashed #aaa;
             border-radius: 5px;
+            /* RWD: 維持單行並可橫向滾動，避免多行導致拖曳判斷混亂 */
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .order-block {
             padding: 15px 25px;
@@ -117,6 +121,8 @@
             text-align: center;
             user-select: none;
             border: 2px solid #ccc;
+            /* RWD: 在可滾動容器內固定自身寬度比例 */
+            flex: 0 0 auto;
         }
         .order-block.dragging { opacity: 0.5; background: #b0b0b0; }
         
@@ -262,6 +268,47 @@
             .temp-save-btn:hover { background-color: #176faf; }
 
             #settings-btn { color: #e6e6e6; }
+        }
+
+        /* 手機/小平板優化 */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .container { padding: 16px; }
+            h1 { font-size: 1.4rem; }
+            h2 { font-size: 1.1rem; }
+
+            /* 表單列改為直向堆疊 */
+            .item-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .item-row label { width: 100%; }
+            .item-row input, .item-row select { width: 100%; box-sizing: border-box; }
+            .discount-logic, .cost-logic { flex-wrap: wrap; }
+            .item-row input[type="number"] { width: 100%; }
+
+            /* 按鈕全寬，觸控更好點擊 */
+            .add-btn, .calc-btn, .temp-save-btn { width: 100%; margin: 6px 0 0 0; }
+            .delete-btn { align-self: flex-end; padding: 10px 8px; }
+            /* 僅限三個輸入區的刪除鍵在手機撐滿整行，提升可點擊性 */
+            .item-row .delete-btn { width: 100%; align-self: stretch; justify-content: center; }
+
+            /* 設定區改單欄排列 */
+            .settings-area { display: grid; grid-template-columns: 1fr; row-gap: 8px; }
+            .settings-area input { width: 100%; }
+
+            /* 計算順序區縮小區塊並允許左右滑動 */
+            #calculation-order-container { gap: 10px; }
+            .order-block { padding: 10px 14px; font-size: 14px; }
+
+            /* 結果區字級適度縮小 */
+            #results p { font-size: 1rem; }
+
+            /* Modal 在手機上自適應 */
+            .modal-content { min-width: auto; width: 92vw; padding: 20px 16px; }
+
+            /* 設定按鈕在小螢幕微調位置與尺寸 */
+            #settings-btn { top: 12px; right: 12px; font-size: 24px; }
+
+            /* 避免瀏海/安全區遮住內容（iOS） */
+            body { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         }
     </style>
 </head>
