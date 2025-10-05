@@ -96,6 +96,19 @@
             font-size: 16px;
             margin-top: 10px;
         }
+        /* 標題旁清空按鈕（圖示為主，缺支援時用文字） */
+        .clear-btn {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 2px 6px;
+            margin-left: 8px;
+            border-radius: 6px;
+            vertical-align: middle;
+        }
+        .clear-btn:hover { background: #f0f0f0; }
         .calc-btn {
             width: 100%;
         }
@@ -272,6 +285,10 @@
             .temp-save-btn:hover { background-color: #176faf; }
 
             #settings-btn { color: #e6e6e6; }
+
+            /* 暗色模式下的清空按鈕 */
+            .clear-btn { color: #c9c9c9; border-color: #555; }
+            .clear-btn:hover { background: #2a2e35; }
         }
 
         /* 手機/小平板優化 */
@@ -322,19 +339,34 @@
     <h1>餐費計算機</h1>
 
     <div class="section">
-        <h2>1. 參與者/用餐人士 (同名人員項目會自動合併計算)</h2>
+        <h2>1. 參與者/用餐人士 (同名人員項目會自動合併計算)
+            <button class="clear-btn" title="清空此區" onclick="clearPersonnel()">
+                <span class="clear-icon" aria-label="清空" role="img">🧹</span>
+                <span class="clear-fallback" style="display:none;">清空</span>
+            </button>
+        </h2>
         <div id="personnel-list"></div>
     <button class="add-btn" onclick="addPersonnel()">新增項目</button>
     </div>
 
     <div class="section">
-        <h2>2. 均分費用區</h2>
+        <h2>2. 均分費用區
+            <button class="clear-btn" title="清空此區" onclick="clearSharedCosts()">
+                <span class="clear-icon" aria-label="清空" role="img">🧹</span>
+                <span class="clear-fallback" style="display:none;">清空</span>
+            </button>
+        </h2>
         <div id="shared-costs-list"></div>
     <button class="add-btn" onclick="addSharedCost()">新增均分費用</button>
     </div>
 
     <div class="section">
-        <h2>3. 共同優惠區</h2>
+        <h2>3. 共同優惠區
+            <button class="clear-btn" title="清空此區" onclick="clearSharedDiscounts()">
+                <span class="clear-icon" aria-label="清空" role="img">🧹</span>
+                <span class="clear-fallback" style="display:none;">清空</span>
+            </button>
+        </h2>
         <div id="shared-discounts-list"></div>
     <button class="add-btn" onclick="addSharedDiscount()">新增共同優惠</button>
     </div>
@@ -503,7 +535,7 @@ function renderPersonnel() {
                     <small>(0為無上限)</small>
                 ` : ''}
             </div>
-            <button class="delete-btn" onclick="deletePersonnel(${p.id})">
+            <button class="delete-btn" title="刪除此人員" onclick="deletePersonnel(${p.id})">
               <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
               <span class="delete-fallback" style="display:none;">刪除</span>
             </button>
@@ -614,7 +646,7 @@ function renderSharedCosts() {
                     <option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
                 </select>
             </label>
-            <button class="delete-btn" onclick="deleteSharedCost(${sc.id})">
+            <button class="delete-btn" title="刪除此費用" onclick="deleteSharedCost(${sc.id})">
               <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
               <span class="delete-fallback" style="display:none;">刪除</span>
             </button>
@@ -685,7 +717,7 @@ function renderSharedDiscounts() {
                     <option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
                 </select>
             </label>
-            <button class="delete-btn" onclick="deleteSharedDiscount(${sd.id})">
+            <button class="delete-btn" title="刪除此優惠" onclick="deleteSharedDiscount(${sd.id})">
               <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
               <span class="delete-fallback" style="display:none;">刪除</span>
             </button>
@@ -786,6 +818,13 @@ function addPersonnel() {
     saveData();
     renderPersonnel();
 }
+function clearPersonnel() {
+    if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) {
+        appData.personnel = [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }];
+        saveData();
+        renderPersonnel();
+    }
+}
 function deletePersonnel(id) {
     if (appData.settings.confirmDelete) {
         const p = appData.personnel.find(x => x.id === id);
@@ -815,6 +854,13 @@ function addSharedCost() {
     appData.sharedCosts.push({ id: Date.now(), name: '', cost: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
     saveData();
     renderSharedCosts();
+}
+function clearSharedCosts() {
+    if (confirm('確定要清空「均分費用區」所有項目嗎？')) {
+        appData.sharedCosts = [];
+        saveData();
+        renderSharedCosts();
+    }
 }
 function deleteSharedCost(id) {
     if (appData.settings.confirmDelete) {
@@ -849,6 +895,13 @@ function addSharedDiscount() {
     appData.sharedDiscounts.push({ id: Date.now(), name: '', discount: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
     saveData();
     renderSharedDiscounts();
+}
+function clearSharedDiscounts() {
+    if (confirm('確定要清空「共同優惠區」所有項目嗎？')) {
+        appData.sharedDiscounts = [];
+        saveData();
+        renderSharedDiscounts();
+    }
 }
 function deleteSharedDiscount(id) {
     if (appData.settings.confirmDelete) {
@@ -1123,15 +1176,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 檢查瀏覽器是否支援 emoji 🗑️，不支援則顯示文字
-function supportsTrashEmoji() {
+function supportsEmoji(char) {
     const span = document.createElement('span');
-    span.innerHTML = '🗑️';
-    return span.innerHTML.length > 0 && span.innerText === '🗑️';
+    span.textContent = char;
+    return span.textContent === char && span.innerText === char;
 }
 document.addEventListener('DOMContentLoaded', function() {
-    if (!supportsTrashEmoji()) {
+    if (!supportsEmoji('🗑️')) {
         document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none');
         document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline');
+    }
+    if (!supportsEmoji('🧹')) {
+        document.querySelectorAll('.clear-icon').forEach(e => e.style.display = 'none');
+        document.querySelectorAll('.clear-fallback').forEach(e => e.style.display = 'inline');
     }
 });
 
@@ -1260,7 +1317,7 @@ function renderCommonInfoLists() {
             const li = document.createElement('li');
             li.draggable = true;
             li.dataset.idx = idx;
-            li.innerHTML = `<span>${name}</span><button class='delete-btn' onclick='deleteCommonInfoItem("${type}",${idx})'><span class='delete-icon' aria-label='刪除' role='img'>✖️</span><span class='delete-fallback' style='display:none;'>刪除</span></button>`;
+            li.innerHTML = `<span>${name}</span><button class='delete-btn' title='刪除此項目' onclick='deleteCommonInfoItem("${type}",${idx})'><span class='delete-icon' aria-label='刪除' role='img'>✖️</span><span class='delete-fallback' style='display:none;'>刪除</span></button>`;
             ul.appendChild(li);
         });
         setupCommonListDragAndDrop(ul, type);
