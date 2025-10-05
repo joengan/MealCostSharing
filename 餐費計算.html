@@ -231,7 +231,14 @@
     <div class="section">
         <h2>5. 進行計算</h2>
         <div class="settings-area">
-            <label>小數位數: 
+            <label>進位方式:
+                <select id="rounding-method" onchange="updateSettings('roundingMethod', this.value)">
+                    <option value="round">四捨五入</option>
+                    <option value="ceil">上捨入</option>
+                    <option value="floor">下捨入</option>
+                </select>
+            </label>
+            <label style="margin-left: 18px;">小數位數: 
                 <input type="number" id="decimal-places" min="0" max="10" 
                        oninput="updateSettings('decimalPlaces', parseInt(this.value))">
             </label>
@@ -279,7 +286,8 @@ const defaultData = {
     sharedDiscounts: [],
     calculationOrder: ['personnel', 'sharedDiscounts', 'sharedCosts'],
     settings: {
-        decimalPlaces: 1
+        decimalPlaces: 1,
+        roundingMethod: 'round' // 新增進位方式，預設四捨五入
     }
 };
 
@@ -603,14 +611,20 @@ function renderCalculationOrder() {
 
 function renderSettings() {
     document.getElementById('decimal-places').value = appData.settings.decimalPlaces;
+    document.getElementById('rounding-method').value = appData.settings.roundingMethod || 'round';
 }
 
 // ===== 動態增刪改 & 設定 =====
 function updateSettings(key, value) {
-    if (isNaN(value) || value < 0) value = 1;
-    if (value > 10) value = 10;
-    appData.settings[key] = value;
-    document.getElementById('decimal-places').value = value;
+    if (key === 'decimalPlaces') {
+        if (isNaN(value) || value < 0) value = 1;
+        if (value > 10) value = 10;
+        appData.settings[key] = value;
+        document.getElementById('decimal-places').value = value;
+    } else if (key === 'roundingMethod') {
+        appData.settings[key] = value;
+        document.getElementById('rounding-method').value = value;
+    }
     saveData();
 }
 
@@ -854,13 +868,24 @@ function displayResults(results) {
     const grandTotalP = document.getElementById('grand-total');
     const decimalPlaces = appData.settings.decimalPlaces;
     const multiplier = 10 ** decimalPlaces;
-    
+    const roundingMethod = appData.settings.roundingMethod || 'round';
+
+    function roundValue(val) {
+        if (roundingMethod === 'ceil') {
+            return Math.ceil(val * multiplier) / multiplier;
+        } else if (roundingMethod === 'floor') {
+            return Math.floor(val * multiplier) / multiplier;
+        } else {
+            return Math.round(val * multiplier) / multiplier;
+        }
+    }
+
     detailsDiv.innerHTML = '';
     let grandTotal = 0;
 
     results.forEach(r => {
         const finalAmount = r.finalAmount < 0 ? 0 : r.finalAmount;
-        const finalAmountRounded = Math.round(finalAmount * multiplier) / multiplier;
+        const finalAmountRounded = roundValue(finalAmount);
         grandTotal += finalAmountRounded;
 
         const p = document.createElement('p');
