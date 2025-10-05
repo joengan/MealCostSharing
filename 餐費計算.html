@@ -136,8 +136,20 @@
             display: none;
         }
         .settings-area { margin-bottom: 15px; }
-        .settings-area label { font-weight: bold; }
-        .settings-area input { width: 60px; }
+    .settings-area label { font-weight: bold; }
+    .settings-area input { width: 60px; }
+
+    /* Switch styles (參考用) */
+    .switch { position: relative; display: inline-block; width: 60px; height: 34px; vertical-align: middle; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+    .switch input:checked + .slider { background-color: #2196F3; }
+    .switch input:checked + .slider:before { transform: translateX(26px); }
+
+    /* 步驟列表樣式 */
+    .steps { margin: 6px 0 10px 0; padding-left: 16px; color: #2f4f4f; }
+    .steps li { margin: 2px 0; }
         
         /* Modal styles */
         .modal {
@@ -242,10 +254,18 @@
                 <input type="number" id="decimal-places" min="0" max="10" 
                        oninput="updateSettings('decimalPlaces', parseInt(this.value))">
             </label>
+            <span style="margin-left: 18px;">
+                <span style="font-weight:bold; vertical-align: middle;">顯示計算過程</span>
+                <label class="switch" style="margin-left:8px;">
+                    <input type="checkbox" id="show-steps-toggle" onchange="updateSettings('showSteps', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </span>
         </div>
         <button class="calc-btn" onclick="calculate()">計算</button>
         <div id="results">
             <h3>計算結果</h3>
+            <ul id="calc-steps" class="steps" style="display:none;"></ul>
             <div id="result-details">-- 等待計算 --</div>
             <p id="grand-total"></p>
         </div>
@@ -287,7 +307,8 @@ const defaultData = {
     calculationOrder: ['personnel', 'sharedDiscounts', 'sharedCosts'],
     settings: {
         decimalPlaces: 1,
-        roundingMethod: 'round' // 新增進位方式，預設四捨五入
+    roundingMethod: 'round', // 新增進位方式，預設四捨五入
+    showSteps: false
     }
 };
 
@@ -612,6 +633,11 @@ function renderCalculationOrder() {
 function renderSettings() {
     document.getElementById('decimal-places').value = appData.settings.decimalPlaces;
     document.getElementById('rounding-method').value = appData.settings.roundingMethod || 'round';
+    const showSteps = !!appData.settings.showSteps;
+    const toggle = document.getElementById('show-steps-toggle');
+    if (toggle) toggle.checked = showSteps;
+    const ul = document.getElementById('calc-steps');
+    if (ul) ul.style.display = showSteps ? 'block' : 'none';
 }
 
 // ===== 動態增刪改 & 設定 =====
@@ -624,6 +650,10 @@ function updateSettings(key, value) {
     } else if (key === 'roundingMethod') {
         appData.settings[key] = value;
         document.getElementById('rounding-method').value = value;
+    } else if (key === 'showSteps') {
+        appData.settings[key] = !!value;
+        const ul = document.getElementById('calc-steps');
+        if (ul) ul.style.display = appData.settings[key] ? 'block' : 'none';
     }
     saveData();
 }
@@ -763,6 +793,7 @@ function getDragAfterElement(container, yOrX) {
 
 // ===== 計算邏輯 =====
 function calculate() {
+    const stepsLog = [];
     // 1. 合併同名人員資料
     const aggregatedPersonnel = {};
     appData.personnel.forEach(p => {
@@ -785,7 +816,11 @@ function calculate() {
                 discountAmount = p.discount.cap;
             }
         }
-        
+        if (discountAmount > 0) {
+            stepsLog.push(`人員「${name}」項目：餐費 ${cost} - 折扣 ${discountAmount} = ${Math.max(cost - discountAmount, 0)}`);
+        } else {
+            stepsLog.push(`人員「${name}」項目：餐費 ${cost}`);
+        }
         aggregatedPersonnel[name].baseMealCost += cost;
         aggregatedPersonnel[name].finalAmount += (cost - discountAmount);
     });
@@ -798,22 +833,25 @@ function calculate() {
     }
     
     const totalBaseMealCost = results.reduce((sum, p) => sum + p.baseMealCost, 0);
+    stepsLog.push(`餐費小計(折扣後)：` + results.map(r => `${r.name}:${(r.finalAmount).toFixed(2)}`).join('，'));
 
     // 2. 依照順序處理共同項目
     appData.calculationOrder.forEach(step => {
         if (step === 'sharedDiscounts') {
             let currentTotalBeforeDiscount = results.reduce((sum, r) => sum + r.finalAmount, 0);
-            processSharedDiscounts(results, totalBaseMealCost, currentTotalBeforeDiscount);
+            stepsLog.push('套用共同優惠：');
+            processSharedDiscounts(results, totalBaseMealCost, currentTotalBeforeDiscount, stepsLog);
         } else if (step === 'sharedCosts') {
-            processSharedCosts(results, totalBaseMealCost);
+            stepsLog.push('加入均分費用：');
+            processSharedCosts(results, totalBaseMealCost, stepsLog);
         }
     });
 
     // 3. 顯示結果
-    displayResults(results);
+    displayResults(results, stepsLog);
 }
 
-function processSharedDiscounts(results, totalBaseMealCost, currentTotal) {
+function processSharedDiscounts(results, totalBaseMealCost, currentTotal, stepsLog) {
     appData.sharedDiscounts.forEach(sd => {
         let totalDiscountValue = 0;
         if (sd.discount.type === 'amount') {
@@ -824,25 +862,31 @@ function processSharedDiscounts(results, totalBaseMealCost, currentTotal) {
                 totalDiscountValue = sd.discount.cap;
             }
         }
+    if (stepsLog) stepsLog.push(`- ${sd.name || '未命名優惠'}：${sd.discount.type === 'amount' ? '金額' : '比例'} ${sd.discount.value}${sd.discount.type === 'percent' ? '%' : ''}${sd.discount.cap>0 ? ` (上限 ${sd.discount.cap})` : ''}，合計折扣 ${totalDiscountValue.toFixed(2)}`);
 
         if (sd.method === 'evenly') {
             if (results.length > 0) {
                 const discountPerPerson = totalDiscountValue / results.length;
-                results.forEach(r => r.finalAmount -= discountPerPerson);
+        results.forEach(r => r.finalAmount -= discountPerPerson);
+        if (stepsLog) stepsLog.push(`  平均攤分，每人 -${discountPerPerson.toFixed(2)}`);
             }
         } else { // proportionally
             if (totalBaseMealCost > 0) {
                 results.forEach(r => {
                     const proportion = r.baseMealCost / totalBaseMealCost;
-                    r.finalAmount -= (totalDiscountValue * proportion);
+            const d = (totalDiscountValue * proportion);
+            r.finalAmount -= d;
+            if (stepsLog) stepsLog.push(`  ${r.name} 按比例 -${d.toFixed(2)} (占比 ${(proportion*100).toFixed(2)}%)`);
                 });
             }
         }
+    // 更新當前總額，供連續百分比優惠使用
+    currentTotal = results.reduce((sum, r) => sum + r.finalAmount, 0);
     });
 }
 
 // **[MODIFIED]** - Updated calculation logic for shared costs
-function processSharedCosts(results, totalBaseMealCost) {
+function processSharedCosts(results, totalBaseMealCost, stepsLog) {
     appData.sharedCosts.forEach(sc => {
         let totalCostValue = 0;
         if (sc.cost.type === 'amount') {
@@ -854,26 +898,31 @@ function processSharedCosts(results, totalBaseMealCost) {
                 totalCostValue = sc.cost.cap;
             }
         }
+        if (stepsLog) stepsLog.push(`- ${sc.name || '未命名費用'}：${sc.cost.type === 'amount' ? '金額' : '比例'} ${sc.cost.value}${sc.cost.type === 'percent' ? '%' : ''}${sc.cost.cap>0 ? ` (上限 ${sc.cost.cap})` : ''}，合計費用 ${totalCostValue.toFixed(2)}`);
 
         if (sc.method === 'evenly') {
             if (results.length > 0) {
                 const costPerPerson = totalCostValue / results.length;
                 results.forEach(r => r.finalAmount += costPerPerson);
+                if (stepsLog) stepsLog.push(`  平均攤分，每人 +${costPerPerson.toFixed(2)}`);
             }
         } else { // proportionally
             if (totalBaseMealCost > 0) {
                  results.forEach(r => {
                     const proportion = r.baseMealCost / totalBaseMealCost;
-                    r.finalAmount += (totalCostValue * proportion);
+                    const c = (totalCostValue * proportion);
+                    r.finalAmount += c;
+                    if (stepsLog) stepsLog.push(`  ${r.name} 按比例 +${c.toFixed(2)} (占比 ${(proportion*100).toFixed(2)}%)`);
                 });
             }
         }
     });
 }
 
-function displayResults(results) {
+function displayResults(results, stepsLog = []) {
     const detailsDiv = document.getElementById('result-details');
     const grandTotalP = document.getElementById('grand-total');
+    const stepsUl = document.getElementById('calc-steps');
     const decimalPlaces = appData.settings.decimalPlaces;
     const multiplier = 10 ** decimalPlaces;
     const roundingMethod = appData.settings.roundingMethod || 'round';
@@ -885,6 +934,21 @@ function displayResults(results) {
             return Math.floor(val * multiplier) / multiplier;
         } else {
             return Math.round(val * multiplier) / multiplier;
+        }
+    }
+
+    // 顯示步驟
+    if (stepsUl) {
+        stepsUl.innerHTML = '';
+        if (appData.settings.showSteps && stepsLog && stepsLog.length) {
+            stepsUl.style.display = 'block';
+            stepsLog.forEach(t => {
+                const li = document.createElement('li');
+                li.textContent = t;
+                stepsUl.appendChild(li);
+            });
+        } else {
+            stepsUl.style.display = appData.settings.showSteps ? 'block' : 'none';
         }
     }
 
