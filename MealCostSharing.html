@@ -1,16 +1,10 @@
 <!DOCTYPE html>
-<!--
-    Copyright (c) 2025 joengan
-    Licensed under the MIT License. See the LICENSE file in the project root for full license text.
--->
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>餐費計算機</title>
-    <!-- 提示瀏覽器支援亮/暗主題顏色配置 -->
     <meta name="color-scheme" content="light dark">
-    <!-- 瀏覽器 UI 顏色（分別對應亮/暗） -->
     <meta name="theme-color" content="#f4f7f6" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
     <style>
@@ -48,6 +42,11 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             flex-wrap: wrap;
+        }
+        /* 【新增】讓拖曳中的項目有更明顯的樣式 */
+        .item-row.dragging {
+            opacity: 0.5;
+            background: #cce5ff;
         }
         .item-row input, .item-row select {
             padding: 8px;
@@ -125,7 +124,7 @@
             padding: 10px;
             border: 1px dashed #aaa;
             border-radius: 5px;
-            /* RWD: 維持單行並可橫向滾動，避免多行導致拖曳判斷混亂 */
+            /* RWD: 維持單行並可橫向滾動，避免多行導致判斷混亂 */
             flex-wrap: nowrap;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -240,6 +239,69 @@
             z-index: 20;
         }
 
+        /* --- 自訂自動完成建議選單樣式 --- */
+        .autocomplete-container {
+            position: relative;
+            width: 100%;
+            display: inline;
+        }
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px; /* 【調整1】新增與輸入框的間距 */
+        }
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none; /* 防止拖曳時選取文字 */
+        }
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: #f0f0f0;
+        }
+        .suggestion-item.dragging {
+            opacity: 0.5;
+            background-color: #d0d0d0;
+        }
+        .suggestion-delete-btn {
+            background: transparent;
+            border: none;
+            color: #d32f2f;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 3px 3px;
+            margin-left: 8px;
+            border-radius: 4px;
+            outline: 1.5px solid transparent;
+            transition: outline-color 0.2s;
+        }
+        .suggestion-delete-btn:hover {
+            outline-color: #A292B5; /* 在暗模式下使用更亮的紅色，與圖示顏色一致 */
+            transform: scale(1.1); /* 稍微放大圖示，提供動態回饋 */
+        }
+
+        /* --- 【新增】拖曳時的預覽區塊樣式 --- */
+        .placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #aaa;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .item-row.placeholder {
+            margin-bottom: 10px;
+        }
+
         /* 暗黑模式覆寫 */
         @media (prefers-color-scheme: dark) {
             body { background-color: #121212; color: #e6e6e6; }
@@ -249,6 +311,11 @@
             /* 區塊更分明：加強邊框與陰影，略微提升背景亮度差 */
             .section { color: inherit; }
             .item-row { background-color: #22252a; border: 1px solid #3a3f45; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 6px rgba(0,0,0,0.35); }
+            /* 【新增】暗黑模式拖曳樣式 */
+            .item-row.dragging {
+                opacity: 0.5;
+                background: #3a3f45;
+            }
             .item-row input, .item-row select { background-color: #2a2e35; color: #e6e6e6; border-color: #4b515a; }
             .item-row input::placeholder { color: #9aa0a6; }
             .item-row:focus-within { outline: 2px solid rgba(97, 218, 251, 0.3); outline-offset: 1px; }
@@ -289,6 +356,31 @@
             /* 暗色模式下的清空按鈕 */
             .clear-btn { color: #c9c9c9; border-color: #555; }
             .clear-btn:hover { background: #2a2e35; }
+            
+            /* 暗黑模式下的自訂選單 */
+            .autocomplete-suggestions {
+                background-color: #2a2e35;
+                border-color: #4b515a;
+                box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+            }
+            .suggestion-item:hover, .suggestion-item.active {
+                background-color: #343a42;
+            }
+            .suggestion-item.dragging {
+                background-color: #4b515a;
+            }
+            .suggestion-delete-btn {
+                color: #ff6b6b;
+            }
+            .suggestion-delete-btn:hover {
+                background-color: rgba(255, 107, 107, 0.25); /* 增加背景色的不透明度和亮度 */
+                transform: scale(1.1); /* 同樣加上放大效果 */
+            }
+            /* --- 【新增】暗黑模式下的預覽區塊 --- */
+            .placeholder {
+                background: #2a2e35;
+                border-color: #555;
+            }
         }
 
         /* 手機/小平板優化 */
@@ -330,6 +422,13 @@
 
             /* 避免瀏海/安全區遮住內容（iOS） */
             body { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        }
+
+        /* 【調整2】針對桌機版的選單微調 */
+        @media (min-width: 769px) {
+            .suggestion-delete-btn {
+                font-size: 10px; /* 稍微縮小刪除圖示 */
+            }
         }
     </style>
 </head>
@@ -407,103 +506,348 @@
         </div>
     </div>
 
-    <div id="settings-btn" title="常用資訊管理">⚙️</div>
+    <div id="settings-btn" title="偏好設定">⚙️</div>
     <div id="common-info-modal" class="modal" style="display:none;">
       <div class="modal-content">
         <span class="close-modal" title="關閉">&times;</span>
-        <h2>常用資訊管理</h2>
+        <h2>偏好設定</h2>
                 <div class="common-list-block">
-                    <h3>偏好設定</h3>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <span style="font-weight:bold;">刪除前確認</span>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                        <span style="font-weight:bold;">刪除「項目」時確認</span>
                         <label class="switch">
-                            <input type="checkbox" id="confirm-delete-toggle" onchange="updateSettings('confirmDelete', this.checked)">
+                            <input type="checkbox" id="confirm-delete-item-toggle" onchange="updateSettings('confirmDeleteItem', this.checked)">
                             <span class="slider"></span>
                         </label>
-                        <small>關閉後，刪除動作將不再跳出確認提示。</small>
+                        <small>刪除「人員、均分費用、共同優惠」項目時，跳出確認提示。</small>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-weight:bold;">刪除「常用選項」時確認</span>
+                        <label class="switch">
+                            <input type="checkbox" id="confirm-delete-option-toggle" onchange="updateSettings('confirmDeleteOption', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <small>從輸入建議選單中刪除常用名稱時，跳出確認提示。</small>
                     </div>
                 </div>
-        <div class="common-list-block">
-          <h3>人員名稱</h3>
-          <ul id="common-person-list" class="common-list"></ul>
-        </div>
-        <div class="common-list-block">
-          <h3>費用名稱</h3>
-          <ul id="common-cost-list" class="common-list"></ul>
-        </div>
-        <div class="common-list-block">
-          <h3>優惠名稱</h3>
-          <ul id="common-discount-list" class="common-list"></ul>
-        </div>
       </div>
     </div>
-
-    <datalist id="common-person-datalist"></datalist>
-    <datalist id="common-cost-datalist"></datalist>
-    <datalist id="common-discount-datalist"></datalist>
 </div>
 
 <script>
-const STORAGE_KEY = 'splitBillCalculatorData_v2';
+// ===== SCRIPT START =====
+// 【修改】統一的儲存鍵，移除版本號
+const UNIFIED_STORAGE_KEY = 'MealCostSharingData';
+// 【新增】舊的儲存鍵，用於資料遷移
+const OLD_STORAGE_KEY = 'splitBillCalculatorData_v2';
+const OLD_COMMON_KEY = 'splitBillCommonInfo_v1';
 
-// 預設資料結構
-const defaultData = {
-    personnel: [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }],
-    sharedCosts: [],
-    sharedDiscounts: [],
-    calculationOrder: ['personnel', 'sharedDiscounts', 'sharedCosts'],
-    settings: {
-        decimalPlaces: 1,
-    roundingMethod: 'round', // 新增進位方式，預設四捨五入
-    showSteps: false,
-    // 刪除前確認（預設開啟，可於設定視窗切換）
-    confirmDelete: true
+// 【修改】統一的預設資料結構
+const defaultMealCostData = {
+    appData: {
+        personnel: [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }],
+        sharedCosts: [],
+        sharedDiscounts: [],
+        calculationOrder: ['personnel', 'sharedDiscounts', 'sharedCosts'],
+        settings: {
+            decimalPlaces: 1,
+            roundingMethod: 'round',
+            showSteps: false,
+            confirmDeleteItem: true,
+            confirmDeleteOption: true
+        }
+    },
+    commonInfo: {
+        person: [],
+        cost: [],
+        discount: []
     }
 };
 
-let appData = loadData();
+// 【修改】將所有應用程式資料儲存在一個物件中
+let mealCostData = loadInitialData();
 
-// ===== 資料處理 (存/讀) =====
-function saveData() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        console.log('Data saved to localStorage.');
-    } catch (e) {
-        console.error("Error saving data to localStorage:", e);
-        alert('儲存資料時發生錯誤！');
+
+// ===== Custom Autocomplete Class (已更新以使用 mealCostData) =====
+class CustomAutocomplete {
+    constructor(inputElement, type) {
+        this.input = inputElement;
+        this.type = type;
+        this.container = this.input.parentElement;
+        this.suggestionsContainer = null;
+        this.activeSuggestionIndex = -1;
+        this.draggedItem = null;
+        this.dragStartIndex = -1;
+        this.isDragging = false;
+        this.clickTimeout = null;
+        this.placeholder = null; 
+        this.init();
+    }
+
+    init() {
+        this.input.addEventListener('focus', () => this.showSuggestions());
+        this.input.addEventListener('input', () => this.showSuggestions());
+        this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+        document.addEventListener('click', (e) => {
+            if (!this.container.contains(e.target)) {
+                this.hideSuggestions();
+            }
+        });
+    }
+
+    showSuggestions() {
+        const value = this.input.value.toLowerCase();
+        const suggestions = mealCostData.commonInfo[this.type].filter(item => item.toLowerCase().includes(value));
+
+        if (!this.suggestionsContainer) {
+            this.suggestionsContainer = document.createElement('div');
+            this.suggestionsContainer.className = 'autocomplete-suggestions';
+            this.container.appendChild(this.suggestionsContainer);
+        }
+
+        this.suggestionsContainer.innerHTML = '';
+        this.activeSuggestionIndex = -1;
+
+        if (suggestions.length === 0) {
+            this.hideSuggestions();
+            return;
+        }
+        
+        this.suggestionsContainer.style.display = 'block';
+
+        suggestions.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'suggestion-item';
+            itemDiv.dataset.value = item;
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = item;
+            itemDiv.appendChild(textSpan);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'suggestion-delete-btn';
+            deleteBtn.innerHTML = '✖️';
+            deleteBtn.title = '刪除此常用項目';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const originalIndex = mealCostData.commonInfo[this.type].indexOf(item);
+                if (originalIndex > -1) {
+                    deleteCommonInfoItem(this.type, originalIndex, () => {
+                        this.showSuggestions();
+                    });
+                }
+            });
+            itemDiv.appendChild(deleteBtn);
+
+            itemDiv.addEventListener('mousedown', (e) => {
+                if (e.target === deleteBtn) return;
+                e.preventDefault();
+
+                this.isDragging = false;
+                this.draggedItem = itemDiv;
+                this.dragStartIndex = mealCostData.commonInfo[this.type].indexOf(item);
+
+                this.clickTimeout = setTimeout(() => {
+                    this.isDragging = true;
+                    this.draggedItem.classList.add('dragging');
+                    this.suggestionsContainer.style.cursor = 'grabbing';
+                    
+                    this.placeholder = document.createElement('div');
+                    this.placeholder.className = 'suggestion-item placeholder';
+                    const rect = this.draggedItem.getBoundingClientRect();
+                    this.placeholder.style.height = `${rect.height}px`;
+                    
+                }, 200);
+
+                const onMouseMove = (moveE) => {
+                    if (this.isDragging) {
+                        this.handleDrag(moveE);
+                    }
+                };
+
+                const onMouseUp = () => {
+                    clearTimeout(this.clickTimeout);
+                    if (!this.isDragging) {
+                        this.selectSuggestion(item);
+                    } else {
+                        this.draggedItem.classList.remove('dragging');
+                        this.suggestionsContainer.style.cursor = '';
+                        
+                        if (this.placeholder && this.placeholder.parentNode) {
+                            this.placeholder.parentNode.replaceChild(this.draggedItem, this.placeholder);
+                        }
+                        
+                        this.updateCommonInfoOrder();
+                    }
+                    this.draggedItem = null;
+                    if (this.placeholder) {
+                        if (this.placeholder.parentNode) this.placeholder.remove();
+                        this.placeholder = null;
+                    }
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+            this.suggestionsContainer.appendChild(itemDiv);
+        });
+    }
+
+    handleDrag(e) {
+        if (!this.draggedItem || !this.placeholder) return;
+        const afterElement = this.getDragAfterElement(this.suggestionsContainer, e.clientY);
+        
+        if (afterElement == null) {
+            this.suggestionsContainer.appendChild(this.placeholder);
+        } else {
+            this.suggestionsContainer.insertBefore(this.placeholder, afterElement);
+        }
+    }
+    
+    getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.suggestion-item:not(.dragging):not(.placeholder)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    updateCommonInfoOrder() {
+        const newOrder = [...this.suggestionsContainer.querySelectorAll('.suggestion-item:not(.placeholder)')].map(item => item.dataset.value);
+        const originalArray = mealCostData.commonInfo[this.type];
+        const newArray = newOrder.concat(originalArray.filter(item => !newOrder.includes(item)));
+        mealCostData.commonInfo[this.type] = newArray;
+        saveData();
+    }
+    
+    selectSuggestion(value) {
+        this.input.value = value;
+        this.hideSuggestions();
+        this.input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    hideSuggestions() {
+        if (this.suggestionsContainer) {
+            this.suggestionsContainer.style.display = 'none';
+        }
+    }
+
+    handleKeydown(e) {
+        if (!this.suggestionsContainer || this.suggestionsContainer.style.display === 'none') return;
+        const items = this.suggestionsContainer.querySelectorAll('.suggestion-item');
+        if (items.length === 0) return;
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault(); this.activeSuggestionIndex = (this.activeSuggestionIndex + 1) % items.length; this.updateActiveSuggestion(items); break;
+            case 'ArrowUp':
+                e.preventDefault(); this.activeSuggestionIndex = (this.activeSuggestionIndex - 1 + items.length) % items.length; this.updateActiveSuggestion(items); break;
+            case 'Enter':
+                e.preventDefault(); if (this.activeSuggestionIndex > -1) { this.selectSuggestion(items[this.activeSuggestionIndex].dataset.value); } break;
+            case 'Escape':
+                this.hideSuggestions(); break;
+        }
+    }
+    
+    updateActiveSuggestion(items) {
+        items.forEach((item, index) => {
+            item.classList.toggle('active', index === this.activeSuggestionIndex);
+        });
+        items[this.activeSuggestionIndex].scrollIntoView({ block: 'nearest' });
     }
 }
 
-function loadData() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
+
+// ===== 資料處理 (存/讀) (已重構) =====
+function saveData() { 
+    try { 
+        localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(mealCostData)); 
+    } catch (e) { 
+        console.error("Error saving unified data:", e); 
+    } 
+}
+
+function loadInitialData() {
+    // 1. 嘗試從新的統一鍵載入
+    const unifiedDataStr = localStorage.getItem(UNIFIED_STORAGE_KEY);
+    if (unifiedDataStr) {
         try {
-            const savedData = JSON.parse(data);
-            
-            // **[MODIFIED]** Handle migration for old sharedCosts format
-            if (savedData.sharedCosts && savedData.sharedCosts.length > 0) {
-                savedData.sharedCosts.forEach(sc => {
+            const loadedData = JSON.parse(unifiedDataStr);
+            // 與預設值合併，確保所有屬性都存在，避免未來新增屬性時出錯
+            const defaultAppData = defaultMealCostData.appData;
+            const defaultCommonInfo = defaultMealCostData.commonInfo;
+            const finalAppData = { ...defaultAppData, ...(loadedData.appData || {}), settings: { ...defaultAppData.settings, ...(loadedData.appData ? loadedData.appData.settings : {}) } };
+            const finalCommonInfo = { ...defaultCommonInfo, ...(loadedData.commonInfo || {}) };
+            return { appData: finalAppData, commonInfo: finalCommonInfo };
+        } catch (e) {
+            console.error("Error parsing unified data, falling back to defaults.", e);
+            return JSON.parse(JSON.stringify(defaultMealCostData));
+        }
+    }
+
+    // 2. 若找不到，嘗試從舊的鍵遷移資料
+    const oldAppDataStr = localStorage.getItem(OLD_STORAGE_KEY);
+    const oldCommonInfoStr = localStorage.getItem(OLD_COMMON_KEY);
+
+    if (oldAppDataStr) {
+        console.log("Migrating data from old version...");
+        let migratedData = JSON.parse(JSON.stringify(defaultMealCostData)); // 從一個乾淨的預設結構開始
+
+        // 遷移 appData
+        try {
+            const savedAppData = JSON.parse(oldAppDataStr);
+            // 向後相容性：處理舊的 sharedCosts 結構
+            if (savedAppData.sharedCosts && savedAppData.sharedCosts.length > 0) {
+                savedAppData.sharedCosts.forEach(sc => {
                     if (typeof sc.amount !== 'undefined' && typeof sc.cost === 'undefined') {
                         sc.cost = { type: 'amount', value: sc.amount, cap: 0 };
                         delete sc.amount;
                     }
                 });
             }
-
-            return {
-                ...defaultData,
-                ...savedData,
-                settings: { ...defaultData.settings, ...(savedData.settings || {}) }
-            };
+            // 向後相容性：處理舊的 settings 結構
+            if (savedAppData.settings && typeof savedAppData.settings.confirmDelete !== 'undefined') {
+                savedAppData.settings.confirmDeleteItem = savedAppData.settings.confirmDelete;
+                savedAppData.settings.confirmDeleteOption = savedAppData.settings.confirmDelete;
+                delete savedAppData.settings.confirmDelete;
+            }
+            migratedData.appData = { ...migratedData.appData, ...savedAppData, settings: { ...migratedData.appData.settings, ...(savedAppData.settings || {}) } };
         } catch (e) {
-            console.error("Error parsing data from localStorage:", e);
-            return JSON.parse(JSON.stringify(defaultData));
+            console.error("Error parsing old appData during migration:", e);
         }
+
+        // 遷移 commonInfo
+        if (oldCommonInfoStr) {
+            try {
+                const savedCommonInfo = JSON.parse(oldCommonInfoStr);
+                migratedData.commonInfo = { person: savedCommonInfo.person || [], cost: savedCommonInfo.cost || [], discount: savedCommonInfo.discount || [] };
+            } catch (e) {
+                console.error("Error parsing old commonInfo during migration:", e);
+            }
+        }
+        
+        // 將新遷移的資料存入統一鍵，並移除舊的鍵
+        try {
+            localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(migratedData));
+            localStorage.removeItem(OLD_STORAGE_KEY);
+            localStorage.removeItem(OLD_COMMON_KEY);
+        } catch (e) {
+            console.error("Could not save migrated data or remove old keys.", e);
+        }
+
+        return migratedData;
     }
-    return JSON.parse(JSON.stringify(defaultData));
+
+    // 3. 如果什麼都找不到，返回全新的預設結構
+    return JSON.parse(JSON.stringify(defaultMealCostData));
 }
 
-// ===== 渲染畫面 =====
+// ===== 渲染畫面 (已更新以使用 mealCostData) =====
 function render() {
     renderPersonnel();
     renderSharedCosts();
@@ -515,465 +859,163 @@ function render() {
 function renderPersonnel() {
     const list = document.getElementById('personnel-list');
     list.innerHTML = '';
-    appData.personnel.forEach(p => {
+    mealCostData.appData.personnel.forEach(p => {
         const div = document.createElement('div');
         div.className = 'item-row draggable-personnel';
         div.dataset.id = p.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>姓名: <input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}" list="common-person-datalist"></label>
+            <label>姓名: <div class="autocomplete-container"><input type="text" value="${p.name}" class="person-name-input" data-id="${p.id}"></div></label>
             <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
             <div class="discount-logic">
                 <label>折扣:</label>
-                <select class="person-discount-type" data-id="${p.id}">
-                    <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
-                    <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
-                </select>
+                <select class="person-discount-type" data-id="${p.id}"><option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
                 <input type="number" min="0" value="${p.discount.value}" class="person-discount-value" data-id="${p.id}">
-                ${p.discount.type === 'percent' ? `
-                    <label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label>
-                    <small>(0為無上限)</small>
-                ` : ''}
+                ${p.discount.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <button class="delete-btn" title="刪除此人員" onclick="deletePersonnel(${p.id})">
-              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
-              <span class="delete-fallback" style="display:none;">刪除</span>
-            </button>
+            <button class="delete-btn" title="刪除此人員" onclick="deletePersonnel(${p.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class="delete-fallback" style="display:none;">刪除</span></button>
         `;
         list.appendChild(div);
     });
-    // 統一監聽 input 事件
-    setTimeout(() => {
-        list.querySelectorAll('.person-name-input').forEach(input => {
-            input.onchange = function() {
-                const id = parseInt(this.dataset.id);
-                updatePersonnel(id, 'name', this.value);
-                addCommonInfo('person', this.value);
-                updateCommonDatalists();
-                renderPersonnel();
-            };
-        });
-        list.querySelectorAll('.person-mealcost-input').forEach(input => {
-            input.oninput = function() {
-                const id = parseInt(this.dataset.id);
-                updatePersonnel(id, 'mealCost', parseFloat(this.value) || 0);
-            };
-        });
-        list.querySelectorAll('.person-discount-type').forEach(sel => {
-            sel.onchange = function() {
-                const id = parseInt(this.dataset.id);
-                updatePersonnel(id, 'discount.type', this.value);
-                renderPersonnel();
-            };
-        });
-        list.querySelectorAll('.person-discount-value').forEach(input => {
-            input.oninput = function() {
-                const id = parseInt(this.dataset.id);
-                updatePersonnel(id, 'discount.value', parseFloat(this.value) || 0);
-            };
-        });
-        list.querySelectorAll('.person-discount-cap').forEach(input => {
-            input.oninput = function() {
-                const id = parseInt(this.dataset.id);
-                updatePersonnel(id, 'discount.cap', parseFloat(this.value) || 0);
-            };
-        });
-    }, 0);
-    setupPersonnelDragAndDrop();
+
+    list.querySelectorAll('.person-name-input').forEach(input => {
+        new CustomAutocomplete(input, 'person');
+        input.onchange = function() {
+            const id = parseInt(this.dataset.id);
+            updatePersonnel(id, 'name', this.value);
+            addCommonInfo('person', this.value);
+        };
+    });
+    list.querySelectorAll('.person-mealcost-input').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'mealCost', parseFloat(this.value) || 0); }; });
+    list.querySelectorAll('.person-discount-type').forEach(sel => { sel.onchange = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.type', this.value); renderPersonnel(); }; });
+    list.querySelectorAll('.person-discount-value').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0); }; });
+    list.querySelectorAll('.person-discount-cap').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0); }; });
 }
 
-
-// 拖曳排序（人員區）
-function setupPersonnelDragAndDrop() {
-    const list = document.getElementById('personnel-list');
-    let draggedItem = null;
-    const draggables = list.querySelectorAll('.draggable-personnel');
-    draggables.forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            draggedItem = item;
-            setTimeout(() => item.classList.add('dragging'), 0);
-        });
-        item.addEventListener('dragend', () => {
-            if (draggedItem) draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        });
-    });
-    list.addEventListener('dragover', e => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(list, e.clientY);
-        if (draggedItem) {
-            if (afterElement == null) list.appendChild(draggedItem);
-            else list.insertBefore(draggedItem, afterElement);
-        }
-    });
-    list.addEventListener('drop', e => {
-        e.preventDefault();
-        // 取得新順序
-        const newOrder = [...list.querySelectorAll('.draggable-personnel')].map(div => parseInt(div.dataset.id));
-        const newArr = newOrder.map(id => appData.personnel.find(p => p.id === id)).filter(Boolean);
-        appData.personnel = newArr;
-        saveData();
-        renderPersonnel();
-    });
-}
-
-// **[MODIFIED]** - Updated to handle new cost structure (amount/percent)
 function renderSharedCosts() {
     const list = document.getElementById('shared-costs-list');
     list.innerHTML = '';
-    appData.sharedCosts.forEach(sc => {
+    mealCostData.appData.sharedCosts.forEach(sc => {
         const div = document.createElement('div');
         div.className = 'item-row draggable-shared-cost';
         div.dataset.id = sc.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>費用名稱: <input type="text" value="${sc.name}" onchange="updateSharedCost(${sc.id}, 'name', this.value)" list="common-cost-datalist"></label>
+            <label>費用名稱: <div class="autocomplete-container"><input type="text" value="${sc.name}" class="shared-cost-name-input" data-id="${sc.id}"></div></label>
             <div class="cost-logic">
                 <label>費用:</label>
-                <select onchange="updateSharedCost(${sc.id}, 'cost.type', this.value)">
-                    <option value="amount" ${sc.cost.type === 'amount' ? 'selected' : ''}>金額</option>
-                    <option value="percent" ${sc.cost.type === 'percent' ? 'selected' : ''}>比例(%)</option>
-                </select>
-                <input type="number" min="0" value="${sc.cost.value}" oninput="updateSharedCost(${sc.id}, 'cost.value', parseFloat(this.value) || 0)">
-                ${sc.cost.type === 'percent' ? `
-                    <label>上限: <input type="number" min="0" value="${sc.cost.cap}" oninput="updateSharedCost(${sc.id}, 'cost.cap', parseFloat(this.value) || 0)"></label>
-                    <small>(0為無上限)</small>
-                ` : ''}
+                <select class="shared-cost-type-input" data-id="${sc.id}"><option value="amount" ${sc.cost.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${sc.cost.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
+                <input type="number" min="0" value="${sc.cost.value}" class="shared-cost-value-input" data-id="${sc.id}">
+                ${sc.cost.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${sc.cost.cap}" class="shared-cost-cap-input" data-id="${sc.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <label>攤分方式:
-                <select onchange="updateSharedCost(${sc.id}, 'method', this.value)">
-                    <option value="evenly" ${sc.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
-                    <option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
-                </select>
-            </label>
-            <button class="delete-btn" title="刪除此費用" onclick="deleteSharedCost(${sc.id})">
-              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
-              <span class="delete-fallback" style="display:none;">刪除</span>
-            </button>
+            <label>攤分方式: <select class="shared-cost-method-input" data-id="${sc.id}"><option value="evenly" ${sc.method === 'evenly' ? 'selected' : ''}>平均攤分</option><option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option></select></label>
+            <button class="delete-btn" title="刪除此費用" onclick="deleteSharedCost(${sc.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class.delete-fallback" style="display:none;">刪除</span></button>
         `;
         list.appendChild(div);
     });
-    setupSharedCostDragAndDrop();
-}
-// 拖曳排序（均分費用區）
-function setupSharedCostDragAndDrop() {
-    const list = document.getElementById('shared-costs-list');
-    let draggedItem = null;
-    const draggables = list.querySelectorAll('.draggable-shared-cost');
-    draggables.forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            draggedItem = item;
-            setTimeout(() => item.classList.add('dragging'), 0);
-        });
-        item.addEventListener('dragend', () => {
-            if (draggedItem) draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        });
-    });
-    list.addEventListener('dragover', e => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(list, e.clientY);
-        if (draggedItem) {
-            if (afterElement == null) list.appendChild(draggedItem);
-            else list.insertBefore(draggedItem, afterElement);
-        }
-    });
-    list.addEventListener('drop', e => {
-        e.preventDefault();
-        // 取得新順序
-        const newOrder = [...list.querySelectorAll('.draggable-shared-cost')].map(div => parseInt(div.dataset.id));
-        const newArr = newOrder.map(id => appData.sharedCosts.find(sc => sc.id === id)).filter(Boolean);
-        appData.sharedCosts = newArr;
-        saveData();
-        renderSharedCosts();
-    });
+
+    list.querySelectorAll('.shared-cost-name-input').forEach(input => { new CustomAutocomplete(input, 'cost'); input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'name', this.value); }); });
+    list.querySelectorAll('.shared-cost-type-input').forEach(input => { input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.type', this.value); }); });
+    list.querySelectorAll('.shared-cost-value-input').forEach(input => { input.addEventListener('input', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.value', parseFloat(this.value) || 0); }); });
+    list.querySelectorAll('.shared-cost-cap-input').forEach(input => { input.addEventListener('input', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.cap', parseFloat(this.value) || 0); }); });
+    list.querySelectorAll('.shared-cost-method-input').forEach(input => { input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'method', this.value); }); });
 }
 
 function renderSharedDiscounts() {
     const list = document.getElementById('shared-discounts-list');
     list.innerHTML = '';
-    appData.sharedDiscounts.forEach(sd => {
+    mealCostData.appData.sharedDiscounts.forEach(sd => {
         const div = document.createElement('div');
         div.className = 'item-row draggable-shared-discount';
         div.dataset.id = sd.id;
         div.draggable = true;
         div.innerHTML = `
-            <label>優惠名稱: <input type="text" value="${sd.name}" onchange="updateSharedDiscount(${sd.id}, 'name', this.value)" list="common-discount-datalist"></label>
+            <label>優惠名稱: <div class="autocomplete-container"><input type="text" value="${sd.name}" class="shared-discount-name-input" data-id="${sd.id}"></div></label>
             <div class="discount-logic">
                 <label>優惠:</label>
-                <select onchange="updateSharedDiscount(${sd.id}, 'discount.type', this.value)">
-                    <option value="amount" ${sd.discount.type === 'amount' ? 'selected' : ''}>金額</option>
-                    <option value="percent" ${sd.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
-                </select>
-                <input type="number" min="0" value="${sd.discount.value}" oninput="updateSharedDiscount(${sd.id}, 'discount.value', parseFloat(this.value) || 0)">
-                 ${sd.discount.type === 'percent' ? `
-                    <label>上限: <input type="number" min="0" value="${sd.discount.cap}" oninput="updateSharedDiscount(${sd.id}, 'discount.cap', parseFloat(this.value) || 0)"></label>
-                    <small>(0為無上限)</small>
-                ` : ''}
+                <select class="shared-discount-type-input" data-id="${sd.id}"><option value="amount" ${sd.discount.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${sd.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
+                <input type="number" min="0" value="${sd.discount.value}" class="shared-discount-value-input" data-id="${sd.id}">
+                 ${sd.discount.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${sd.discount.cap}" class="shared-discount-cap-input" data-id="${sd.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <label>攤分方式:
-                <select onchange="updateSharedDiscount(${sd.id}, 'method', this.value)">
-                    <option value="evenly" ${sd.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
-                    <option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
-                </select>
-            </label>
-            <button class="delete-btn" title="刪除此優惠" onclick="deleteSharedDiscount(${sd.id})">
-              <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
-              <span class="delete-fallback" style="display:none;">刪除</span>
-            </button>
+            <label>攤分方式: <select class="shared-discount-method-input" data-id="${sd.id}"><option value="evenly" ${sd.method === 'evenly' ? 'selected' : ''}>平均攤分</option><option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option></select></label>
+            <button class="delete-btn" title="刪除此優惠" onclick="deleteSharedDiscount(${sd.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class="delete-fallback" style="display:none;">刪除</span></button>
         `;
         list.appendChild(div);
     });
-    setupSharedDiscountDragAndDrop();
+
+    list.querySelectorAll('.shared-discount-name-input').forEach(input => { new CustomAutocomplete(input, 'discount'); input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'name', this.value); }); });
+    list.querySelectorAll('.shared-discount-type-input').forEach(input => { input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.type', this.value); }); });
+    list.querySelectorAll('.shared-discount-value-input').forEach(input => { input.addEventListener('input', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0); }); });
+    list.querySelectorAll('.shared-discount-cap-input').forEach(input => { input.addEventListener('input', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0); }); });
+    list.querySelectorAll('.shared-discount-method-input').forEach(input => { input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'method', this.value); }); });
 }
-// 拖曳排序（共同優惠區）
-function setupSharedDiscountDragAndDrop() {
-    const list = document.getElementById('shared-discounts-list');
+
+// ===== 拖曳排序函式 (已更新以使用 mealCostData) =====
+function setupDrag(listSelector, dataArray) {
+    const list = document.querySelector(listSelector);
     let draggedItem = null;
-    const draggables = list.querySelectorAll('.draggable-shared-discount');
-    draggables.forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            draggedItem = item;
-            setTimeout(() => item.classList.add('dragging'), 0);
-        });
-        item.addEventListener('dragend', () => {
-            if (draggedItem) draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        });
+    let placeholder = null;
+
+    list.addEventListener('dragstart', (e) => {
+        if (e.target.closest('.item-row')) {
+            draggedItem = e.target.closest('.item-row');
+            
+            placeholder = document.createElement('div');
+            placeholder.className = 'item-row placeholder';
+            const rect = draggedItem.getBoundingClientRect();
+            placeholder.style.height = `${rect.height}px`;
+
+            setTimeout(() => {
+                draggedItem.classList.add('dragging');
+            }, 0);
+        }
     });
+
+    list.addEventListener('dragend', () => {
+        if (draggedItem) {
+            draggedItem.classList.remove('dragging');
+        }
+        if (placeholder && placeholder.parentNode) {
+            placeholder.remove();
+        }
+        draggedItem = null;
+        placeholder = null;
+    });
+
     list.addEventListener('dragover', e => {
         e.preventDefault();
-        const afterElement = getDragAfterElement(list, e.clientY);
-        if (draggedItem) {
-            if (afterElement == null) list.appendChild(draggedItem);
-            else list.insertBefore(draggedItem, afterElement);
+        if (!placeholder) return;
+        const afterElement = getDragAfterElementForRow(list, e.clientY);
+        if (afterElement == null) {
+            list.appendChild(placeholder);
+        } else {
+            list.insertBefore(placeholder, afterElement);
         }
     });
+
     list.addEventListener('drop', e => {
         e.preventDefault();
-        // 取得新順序
-        const newOrder = [...list.querySelectorAll('.draggable-shared-discount')].map(div => parseInt(div.dataset.id));
-        const newArr = newOrder.map(id => appData.sharedDiscounts.find(sd => sd.id === id)).filter(Boolean);
-        appData.sharedDiscounts = newArr;
-        saveData();
-        renderSharedDiscounts();
-    });
-}
+        if (!draggedItem || !placeholder || !placeholder.parentNode) return;
 
-function renderCalculationOrder() {
-    const container = document.getElementById('calculation-order-container');
-    container.innerHTML = '';
-    const nameMap = {
-        personnel: '(+) 人員區',
-        sharedDiscounts: '(-) 共同優惠區',
-        sharedCosts: '(+) 均分費用區'
-    };
-    appData.calculationOrder.forEach(key => {
-        const div = document.createElement('div');
-        div.className = 'order-block';
-        div.dataset.key = key;
-        div.draggable = true;
-        div.textContent = nameMap[key];
-        container.appendChild(div);
-    });
-    setupDragAndDrop();
-}
-
-function renderSettings() {
-    document.getElementById('decimal-places').value = appData.settings.decimalPlaces;
-    document.getElementById('rounding-method').value = appData.settings.roundingMethod || 'round';
-    const showSteps = !!appData.settings.showSteps;
-    const toggle = document.getElementById('show-steps-toggle');
-    if (toggle) toggle.checked = showSteps;
-    const cdToggle = document.getElementById('confirm-delete-toggle');
-    if (cdToggle) cdToggle.checked = !!appData.settings.confirmDelete;
-    const ul = document.getElementById('calc-steps');
-    if (ul) ul.style.display = showSteps ? 'block' : 'none';
-}
-
-// ===== 動態增刪改 & 設定 =====
-function updateSettings(key, value) {
-    if (key === 'decimalPlaces') {
-        if (isNaN(value) || value < 0) value = 1;
-        if (value > 10) value = 10;
-        appData.settings[key] = value;
-        document.getElementById('decimal-places').value = value;
-    } else if (key === 'roundingMethod') {
-        appData.settings[key] = value;
-        document.getElementById('rounding-method').value = value;
-    } else if (key === 'showSteps') {
-        appData.settings[key] = !!value;
-        const ul = document.getElementById('calc-steps');
-        if (ul) ul.style.display = appData.settings[key] ? 'block' : 'none';
-    } else if (key === 'confirmDelete') {
-        appData.settings[key] = !!value;
-        const t = document.getElementById('confirm-delete-toggle');
-        if (t) t.checked = appData.settings[key];
-    }
-    saveData();
-}
-
-function addPersonnel() {
-    appData.personnel.push({ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } });
-    saveData();
-    renderPersonnel();
-}
-function clearPersonnel() {
-    if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) {
-        appData.personnel = [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }];
-        saveData();
-        renderPersonnel();
-    }
-}
-function deletePersonnel(id) {
-    if (appData.settings.confirmDelete) {
-        const p = appData.personnel.find(x => x.id === id);
-        const name = p ? (p.name || '未命名') : '';
-        if (!confirm(`確定要刪除人員「${name}」嗎？`)) return;
-    }
-    appData.personnel = appData.personnel.filter(p => p.id !== id);
-    saveData();
-    renderPersonnel();
-}
-function updatePersonnel(id, field, value) {
-    const person = appData.personnel.find(p => p.id === id);
-    if (!person) return;
-    if (field.includes('.')) {
-        const [obj, prop] = field.split('.');
-        person[obj][prop] = value;
-    } else {
-        person[field] = value;
-    }
-    saveData();
-    if (field === 'discount.type') {
-       renderPersonnel();
-    }
-}
-// **[MODIFIED]** - Add new shared cost with the new data structure
-function addSharedCost() {
-    appData.sharedCosts.push({ id: Date.now(), name: '', cost: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
-    saveData();
-    renderSharedCosts();
-}
-function clearSharedCosts() {
-    if (confirm('確定要清空「均分費用區」所有項目嗎？')) {
-        appData.sharedCosts = [];
-        saveData();
-        renderSharedCosts();
-    }
-}
-function deleteSharedCost(id) {
-    if (appData.settings.confirmDelete) {
-        const c = appData.sharedCosts.find(x => x.id === id);
-        const name = c ? (c.name || '未命名費用') : '';
-        if (!confirm(`確定要刪除費用「${name}」嗎？`)) return;
-    }
-    appData.sharedCosts = appData.sharedCosts.filter(sc => sc.id !== id);
-    saveData();
-    renderSharedCosts();
-}
-// **[MODIFIED]** - Update shared cost for nested properties and re-render on type change
-function updateSharedCost(id, field, value) {
-    const cost = appData.sharedCosts.find(sc => sc.id === id);
-    if (!cost) return;
-    if (field.includes('.')) {
-        const [obj, prop] = field.split('.');
-        cost[obj][prop] = value;
-    } else {
-        cost[field] = value;
-    }
-    if (field === 'name') {
-        addCommonInfo('cost', value);
-        updateCommonDatalists();
-    }
-    saveData();
-    if (field === 'cost.type') {
-       renderSharedCosts();
-    }
-}
-function addSharedDiscount() {
-    appData.sharedDiscounts.push({ id: Date.now(), name: '', discount: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' });
-    saveData();
-    renderSharedDiscounts();
-}
-function clearSharedDiscounts() {
-    if (confirm('確定要清空「共同優惠區」所有項目嗎？')) {
-        appData.sharedDiscounts = [];
-        saveData();
-        renderSharedDiscounts();
-    }
-}
-function deleteSharedDiscount(id) {
-    if (appData.settings.confirmDelete) {
-        const d = appData.sharedDiscounts.find(x => x.id === id);
-        const name = d ? (d.name || '未命名優惠') : '';
-        if (!confirm(`確定要刪除優惠「${name}」嗎？`)) return;
-    }
-    appData.sharedDiscounts = appData.sharedDiscounts.filter(sd => sd.id !== id);
-    saveData();
-    renderSharedDiscounts();
-}
-function updateSharedDiscount(id, field, value) {
-    const discount = appData.sharedDiscounts.find(sd => sd.id === id);
-    if (!discount) return;
-    if (field.includes('.')) {
-        const [obj, prop] = field.split('.');
-        discount[obj][prop] = value;
-    } else {
-        discount[field] = value;
-    }
-    if (field === 'name') {
-        addCommonInfo('discount', value);
-        updateCommonDatalists();
-    }
-    saveData();
-    if (field === 'discount.type') {
-       renderSharedDiscounts();
-    }
-}
-
-// ===== 拖曳排序功能 =====
-function setupDragAndDrop() {
-    const container = document.getElementById('calculation-order-container');
-    const blocks = document.querySelectorAll('.order-block');
-    let draggedItem = null;
-
-    blocks.forEach(block => {
-        block.addEventListener('dragstart', (e) => {
-            draggedItem = e.target;
-            setTimeout(() => e.target.classList.add('dragging'), 0);
-        });
-        block.addEventListener('dragend', () => {
-            if (draggedItem) draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        });
-    });
-
-    container.addEventListener('dragover', e => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(container, e.clientX);
-        if (draggedItem) {
-            if (afterElement == null) container.appendChild(draggedItem);
-            else container.insertBefore(draggedItem, afterElement);
-        }
-    });
-    
-    container.addEventListener('drop', e => {
-        e.preventDefault();
-        const newOrder = [...container.querySelectorAll('.order-block')].map(b => b.dataset.key);
-        appData.calculationOrder = newOrder;
+        placeholder.parentNode.replaceChild(draggedItem, placeholder);
+        placeholder = null; 
+        
+        const newOrder = [...list.querySelectorAll('.item-row')].map(div => parseInt(div.dataset.id));
+        const newArr = newOrder.map(id => dataArray.find(item => item.id === id)).filter(Boolean);
+        
+        if (dataArray === mealCostData.appData.personnel) mealCostData.appData.personnel = newArr;
+        else if (dataArray === mealCostData.appData.sharedCosts) mealCostData.appData.sharedCosts = newArr;
+        else if (dataArray === mealCostData.appData.sharedDiscounts) mealCostData.appData.sharedDiscounts = newArr;
+        
         saveData();
     });
 }
-function getDragAfterElement(container, yOrX) {
-    // 支援 order-block (橫向) 與 personnel (縱向)
-    const draggableElements = [...container.querySelectorAll(':scope > .draggable-personnel:not(.dragging), :scope > .order-block:not(.dragging)')];
+
+function getDragAfterElementForRow(container, y) {
+    const draggableElements = [...container.querySelectorAll('.item-row:not(.dragging):not(.placeholder)')];
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
-        // 橫向拖曳用 x，縱向拖曳用 y
-        const offset = (child.classList.contains('order-block'))
-            ? yOrX - box.left - box.width / 2
-            : yOrX - box.top - box.height / 2;
+        const offset = y - box.top - box.height / 2;
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
         } else {
@@ -982,52 +1024,135 @@ function getDragAfterElement(container, yOrX) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// ===== 計算邏輯 =====
+function renderCalculationOrder() {
+    const container = document.getElementById('calculation-order-container');
+    container.innerHTML = '';
+    const nameMap = { personnel: '(+) 人員區', sharedDiscounts: '(-) 共同優惠區', sharedCosts: '(+) 均分費用區' };
+    mealCostData.appData.calculationOrder.forEach(key => {
+        const div = document.createElement('div');
+        div.className = 'order-block';
+        div.dataset.key = key;
+        div.draggable = true;
+        div.textContent = nameMap[key];
+        container.appendChild(div);
+    });
+}
+
+function renderSettings() {
+    document.getElementById('decimal-places').value = mealCostData.appData.settings.decimalPlaces;
+    document.getElementById('rounding-method').value = mealCostData.appData.settings.roundingMethod || 'round';
+    document.getElementById('show-steps-toggle').checked = !!mealCostData.appData.settings.showSteps;
+    document.getElementById('confirm-delete-item-toggle').checked = !!mealCostData.appData.settings.confirmDeleteItem;
+    document.getElementById('confirm-delete-option-toggle').checked = !!mealCostData.appData.settings.confirmDeleteOption;
+    document.getElementById('calc-steps').style.display = mealCostData.appData.settings.showSteps ? 'block' : 'none';
+}
+
+// ===== 計算順序區的拖曳函式 (已更新以使用 mealCostData) =====
+function getDragAfterElementForHorizontal(container, x) {
+    const draggableElements = [...container.querySelectorAll('.order-block:not(.dragging):not(.placeholder)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } 
+        else { return closest; }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function setupOrderDragAndDrop() {
+    const container = document.getElementById('calculation-order-container');
+    let draggedItem = null;
+    let placeholder = null;
+
+    container.addEventListener('dragstart', e => {
+        if (e.target.classList.contains('order-block')) {
+            draggedItem = e.target;
+            placeholder = document.createElement('div');
+            placeholder.className = 'order-block placeholder';
+            const rect = draggedItem.getBoundingClientRect();
+            placeholder.style.width = `${rect.width}px`;
+            placeholder.style.height = `${rect.height}px`;
+            setTimeout(() => { draggedItem.classList.add('dragging'); }, 0);
+        }
+    });
+
+    container.addEventListener('dragend', () => {
+        if (draggedItem) { draggedItem.classList.remove('dragging'); }
+        if (placeholder && placeholder.parentNode) { placeholder.remove(); }
+        draggedItem = null;
+        placeholder = null;
+    });
+
+    container.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (!placeholder) return;
+        const afterElement = getDragAfterElementForHorizontal(container, e.clientX);
+        if (afterElement == null) { container.appendChild(placeholder); } 
+        else { container.insertBefore(placeholder, afterElement); }
+    });
+    
+    container.addEventListener('drop', e => {
+        e.preventDefault();
+        if (!draggedItem || !placeholder || !placeholder.parentNode) return;
+        placeholder.parentNode.replaceChild(draggedItem, placeholder);
+        placeholder = null;
+        mealCostData.appData.calculationOrder = [...container.querySelectorAll('.order-block')].map(b => b.dataset.key);
+        saveData();
+    });
+}
+
+// ===== 其餘函式 (已更新以使用 mealCostData) =====
+function updateSettings(key, value) { mealCostData.appData.settings[key] = value; saveData(); renderSettings(); }
+function addPersonnel() { mealCostData.appData.personnel.push({ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }); saveData(); renderPersonnel(); }
+function clearPersonnel() { if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) { mealCostData.appData.personnel = [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }]; saveData(); renderPersonnel(); } }
+function deletePersonnel(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此人員嗎？`)) return; mealCostData.appData.personnel = mealCostData.appData.personnel.filter(p => p.id !== id); saveData(); renderPersonnel(); }
+function updatePersonnel(id, field, value) {
+    const person = mealCostData.appData.personnel.find(p => p.id === id);
+    if (!person) return;
+    if (field.includes('.')) { const [obj, prop] = field.split('.'); person[obj][prop] = value; } 
+    else { person[field] = value; }
+    saveData();
+}
+function addSharedCost() { mealCostData.appData.sharedCosts.push({ id: Date.now(), name: '', cost: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' }); saveData(); renderSharedCosts(); }
+function clearSharedCosts() { if (confirm('確定要清空「均分費用區」所有項目嗎？')) { mealCostData.appData.sharedCosts = []; saveData(); renderSharedCosts(); } }
+function deleteSharedCost(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此費用嗎？`)) return; mealCostData.appData.sharedCosts = mealCostData.appData.sharedCosts.filter(sc => sc.id !== id); saveData(); renderSharedCosts(); }
+function updateSharedCost(id, field, value) {
+    const cost = mealCostData.appData.sharedCosts.find(sc => sc.id === id);
+    if (!cost) return;
+    if (field.includes('.')) { const [obj, prop] = field.split('.'); cost[obj][prop] = value; } 
+    else { cost[field] = value; }
+    if (field === 'name') addCommonInfo('cost', value);
+    saveData();
+    if (field === 'cost.type') renderSharedCosts();
+}
+function addSharedDiscount() { mealCostData.appData.sharedDiscounts.push({ id: Date.now(), name: '', discount: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' }); saveData(); renderSharedDiscounts(); }
+function clearSharedDiscounts() { if (confirm('確定要清空「共同優惠區」所有項目嗎？')) { mealCostData.appData.sharedDiscounts = []; saveData(); renderSharedDiscounts(); } }
+function deleteSharedDiscount(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此優惠嗎？`)) return; mealCostData.appData.sharedDiscounts = mealCostData.appData.sharedDiscounts.filter(sd => sd.id !== id); saveData(); renderSharedDiscounts(); }
+function updateSharedDiscount(id, field, value) {
+    const discount = mealCostData.appData.sharedDiscounts.find(sd => sd.id === id);
+    if (!discount) return;
+    if (field.includes('.')) { const [obj, prop] = field.split('.'); discount[obj][prop] = value; } 
+    else { discount[field] = value; }
+    if (field === 'name') addCommonInfo('discount', value);
+    saveData();
+    if (field === 'discount.type') renderSharedDiscounts();
+}
 function calculate() {
-    const stepsLog = [];
-    // 1. 合併同名人員資料
-    const aggregatedPersonnel = {};
-    appData.personnel.forEach(p => {
+    const stepsLog = []; const aggregatedPersonnel = {};
+    mealCostData.appData.personnel.forEach(p => {
         const name = p.name.trim() || '未命名';
-        if (!aggregatedPersonnel[name]) {
-            aggregatedPersonnel[name] = {
-                name: name,
-                baseMealCost: 0, // 總餐費(折扣前)
-                finalAmount: 0   // 個人項目結算後金額
-            };
-        }
-        
-        let cost = p.mealCost;
-        let discountAmount = 0;
-        if (p.discount.type === 'amount') {
-            discountAmount = p.discount.value;
-        } else if (p.discount.type === 'percent') {
-            discountAmount = cost * (p.discount.value / 100);
-            if (p.discount.cap > 0 && discountAmount > p.discount.cap) {
-                discountAmount = p.discount.cap;
-            }
-        }
-        if (discountAmount > 0) {
-            stepsLog.push(`人員「${name}」項目：餐費 ${cost} - 折扣 ${discountAmount} = ${Math.max(cost - discountAmount, 0)}`);
-        } else {
-            stepsLog.push(`人員「${name}」項目：餐費 ${cost}`);
-        }
+        if (!aggregatedPersonnel[name]) { aggregatedPersonnel[name] = { name: name, baseMealCost: 0, finalAmount: 0 }; }
+        let cost = p.mealCost; let discountAmount = 0;
+        if (p.discount.type === 'amount') { discountAmount = p.discount.value; } 
+        else if (p.discount.type === 'percent') { discountAmount = cost * (p.discount.value / 100); if (p.discount.cap > 0 && discountAmount > p.discount.cap) discountAmount = p.discount.cap; }
+        stepsLog.push(`人員「${name}」項目：餐費 ${cost}` + (discountAmount > 0 ? ` - 折扣 ${discountAmount} = ${Math.max(cost - discountAmount, 0)}` : ''));
         aggregatedPersonnel[name].baseMealCost += cost;
         aggregatedPersonnel[name].finalAmount += (cost - discountAmount);
     });
-
     let results = Object.values(aggregatedPersonnel);
-
-    if (results.length === 0) {
-        alert('請至少新增一位人員！');
-        return;
-    }
-    
+    if (results.length === 0) { alert('請至少新增一位人員！'); return; }
     const totalBaseMealCost = results.reduce((sum, p) => sum + p.baseMealCost, 0);
     stepsLog.push(`餐費小計(折扣後)：` + results.map(r => `${r.name}:${(r.finalAmount).toFixed(2)}`).join('，'));
-
-    // 2. 依照順序處理共同項目
-    appData.calculationOrder.forEach(step => {
+    mealCostData.appData.calculationOrder.forEach(step => {
         if (step === 'sharedDiscounts') {
             let currentTotalBeforeDiscount = results.reduce((sum, r) => sum + r.finalAmount, 0);
             stepsLog.push('套用共同優惠：');
@@ -1037,370 +1162,91 @@ function calculate() {
             processSharedCosts(results, totalBaseMealCost, stepsLog);
         }
     });
-
-    // 3. 顯示結果
     displayResults(results, stepsLog);
 }
-
 function processSharedDiscounts(results, totalBaseMealCost, currentTotal, stepsLog) {
-    appData.sharedDiscounts.forEach(sd => {
+    mealCostData.appData.sharedDiscounts.forEach(sd => {
         let totalDiscountValue = 0;
-        if (sd.discount.type === 'amount') {
-            totalDiscountValue = sd.discount.value;
-        } else { // percent
-            totalDiscountValue = currentTotal * (sd.discount.value / 100);
-            if (sd.discount.cap > 0 && totalDiscountValue > sd.discount.cap) {
-                totalDiscountValue = sd.discount.cap;
-            }
-        }
-    if (stepsLog) stepsLog.push(`- ${sd.name || '未命名優惠'}：${sd.discount.type === 'amount' ? '金額' : '比例'} ${sd.discount.value}${sd.discount.type === 'percent' ? '%' : ''}${sd.discount.cap>0 ? ` (上限 ${sd.discount.cap})` : ''}，合計折扣 ${totalDiscountValue.toFixed(2)}`);
-
-        if (sd.method === 'evenly') {
-            if (results.length > 0) {
-                const discountPerPerson = totalDiscountValue / results.length;
-        results.forEach(r => r.finalAmount -= discountPerPerson);
-        if (stepsLog) stepsLog.push(`  平均攤分，每人 -${discountPerPerson.toFixed(2)}`);
-            }
-        } else { // proportionally
-            if (totalBaseMealCost > 0) {
-                results.forEach(r => {
-                    const proportion = r.baseMealCost / totalBaseMealCost;
-            const d = (totalDiscountValue * proportion);
-            r.finalAmount -= d;
-            if (stepsLog) stepsLog.push(`  ${r.name} 按比例 -${d.toFixed(2)} (占比 ${(proportion*100).toFixed(2)}%)`);
-                });
-            }
-        }
-    // 更新當前總額，供連續百分比優惠使用
-    currentTotal = results.reduce((sum, r) => sum + r.finalAmount, 0);
+        if (sd.discount.type === 'amount') { totalDiscountValue = sd.discount.value; } 
+        else { totalDiscountValue = currentTotal * (sd.discount.value / 100); if (sd.discount.cap > 0 && totalDiscountValue > sd.discount.cap) totalDiscountValue = sd.discount.cap; }
+        stepsLog.push(`- ${sd.name || '未命名優惠'}... 合計折扣 ${totalDiscountValue.toFixed(2)}`);
+        if (sd.method === 'evenly') { if (results.length > 0) { const discountPerPerson = totalDiscountValue / results.length; results.forEach(r => r.finalAmount -= discountPerPerson); stepsLog.push(`  平均攤分，每人 -${discountPerPerson.toFixed(2)}`); } } 
+        else { if (totalBaseMealCost > 0) { results.forEach(r => { const proportion = r.baseMealCost / totalBaseMealCost; const d = (totalDiscountValue * proportion); r.finalAmount -= d; stepsLog.push(`  ${r.name} 按比例 -${d.toFixed(2)}`); }); } }
+        currentTotal = results.reduce((sum, r) => sum + r.finalAmount, 0);
     });
 }
-
-// **[MODIFIED]** - Updated calculation logic for shared costs
 function processSharedCosts(results, totalBaseMealCost, stepsLog) {
-    appData.sharedCosts.forEach(sc => {
+    mealCostData.appData.sharedCosts.forEach(sc => {
         let totalCostValue = 0;
-        if (sc.cost.type === 'amount') {
-            totalCostValue = sc.cost.value;
-        } else { // percent
-            // Percentage cost is based on the total base meal cost
-            totalCostValue = totalBaseMealCost * (sc.cost.value / 100);
-            if (sc.cost.cap > 0 && totalCostValue > sc.cost.cap) {
-                totalCostValue = sc.cost.cap;
-            }
-        }
-        if (stepsLog) stepsLog.push(`- ${sc.name || '未命名費用'}：${sc.cost.type === 'amount' ? '金額' : '比例'} ${sc.cost.value}${sc.cost.type === 'percent' ? '%' : ''}${sc.cost.cap>0 ? ` (上限 ${sc.cost.cap})` : ''}，合計費用 ${totalCostValue.toFixed(2)}`);
-
-        if (sc.method === 'evenly') {
-            if (results.length > 0) {
-                const costPerPerson = totalCostValue / results.length;
-                results.forEach(r => r.finalAmount += costPerPerson);
-                if (stepsLog) stepsLog.push(`  平均攤分，每人 +${costPerPerson.toFixed(2)}`);
-            }
-        } else { // proportionally
-            if (totalBaseMealCost > 0) {
-                 results.forEach(r => {
-                    const proportion = r.baseMealCost / totalBaseMealCost;
-                    const c = (totalCostValue * proportion);
-                    r.finalAmount += c;
-                    if (stepsLog) stepsLog.push(`  ${r.name} 按比例 +${c.toFixed(2)} (占比 ${(proportion*100).toFixed(2)}%)`);
-                });
-            }
-        }
+        if (sc.cost.type === 'amount') { totalCostValue = sc.cost.value; } 
+        else { totalCostValue = totalBaseMealCost * (sc.cost.value / 100); if (sc.cost.cap > 0 && totalCostValue > sc.cost.cap) totalCostValue = sc.cost.cap; }
+        stepsLog.push(`- ${sc.name || '未命名費用'}... 合計費用 ${totalCostValue.toFixed(2)}`);
+        if (sc.method === 'evenly') { if (results.length > 0) { const costPerPerson = totalCostValue / results.length; results.forEach(r => r.finalAmount += costPerPerson); stepsLog.push(`  平均攤分，每人 +${costPerPerson.toFixed(2)}`); } } 
+        else { if (totalBaseMealCost > 0) { results.forEach(r => { const proportion = r.baseMealCost / totalBaseMealCost; const c = (totalCostValue * proportion); r.finalAmount += c; stepsLog.push(`  ${r.name} 按比例 +${c.toFixed(2)}`); }); } }
     });
 }
-
 function displayResults(results, stepsLog = []) {
     const detailsDiv = document.getElementById('result-details');
     const grandTotalP = document.getElementById('grand-total');
     const stepsUl = document.getElementById('calc-steps');
-    const decimalPlaces = appData.settings.decimalPlaces;
+    const { decimalPlaces, roundingMethod } = mealCostData.appData.settings;
     const multiplier = 10 ** decimalPlaces;
-    const roundingMethod = appData.settings.roundingMethod || 'round';
-
     function roundValue(val) {
-        if (roundingMethod === 'ceil') {
-            return Math.ceil(val * multiplier) / multiplier;
-        } else if (roundingMethod === 'floor') {
-            return Math.floor(val * multiplier) / multiplier;
-        } else {
-            return Math.round(val * multiplier) / multiplier;
-        }
+        if (roundingMethod === 'ceil') return Math.ceil(val * multiplier) / multiplier;
+        if (roundingMethod === 'floor') return Math.floor(val * multiplier) / multiplier;
+        return Math.round(val * multiplier) / multiplier;
     }
-
-    // 顯示步驟
-    if (stepsUl) {
-        stepsUl.innerHTML = '';
-        if (appData.settings.showSteps && stepsLog && stepsLog.length) {
-            stepsUl.style.display = 'block';
-            stepsLog.forEach(t => {
-                const li = document.createElement('li');
-                li.textContent = t;
-                stepsUl.appendChild(li);
-            });
-        } else {
-            stepsUl.style.display = appData.settings.showSteps ? 'block' : 'none';
-        }
-    }
-
+    stepsUl.innerHTML = '';
+    if (mealCostData.appData.settings.showSteps && stepsLog.length) { stepsLog.forEach(t => { const li = document.createElement('li'); li.textContent = t; stepsUl.appendChild(li); }); }
     detailsDiv.innerHTML = '';
     let grandTotal = 0;
-
     results.forEach(r => {
-        const finalAmount = r.finalAmount < 0 ? 0 : r.finalAmount;
-        const finalAmountRounded = roundValue(finalAmount);
+        const finalAmountRounded = roundValue(Math.max(0, r.finalAmount));
         grandTotal += finalAmountRounded;
-
         const p = document.createElement('p');
         p.textContent = `${r.name} 應付: $ ${finalAmountRounded.toFixed(decimalPlaces)}`;
         detailsDiv.appendChild(p);
     });
-
     grandTotalP.textContent = `收款總計: $ ${grandTotal.toFixed(decimalPlaces)}`;
 }
-
-// ===== 其他 UI 功能 =====
-function showSaveFeedback(button) {
+function addCommonInfo(type, name) { name = (name || '').trim(); if (!name) return; if (!mealCostData.commonInfo[type].includes(name)) { mealCostData.commonInfo[type].push(name); saveData(); } }
+function deleteCommonInfoItem(type, idx, callback) {
+    if (mealCostData.appData.settings.confirmDeleteOption) { if (!confirm(`確定要刪除常用項目「${mealCostData.commonInfo[type][idx]}」嗎？`)) return; }
+    mealCostData.commonInfo[type].splice(idx, 1);
     saveData();
-    const feedback = button.nextElementSibling;
-    feedback.style.display = 'inline';
-    setTimeout(() => { feedback.style.display = 'none'; }, 1500);
+    if (callback) callback();
 }
-
-// ===== 初始化 =====
-document.addEventListener('DOMContentLoaded', () => {
-    render();
-    document.getElementById('settings-btn').onclick = showCommonInfoModal;
-    document.querySelector('#common-info-modal .close-modal').onclick = hideCommonInfoModal;
-    syncCommonInfoFromAppData();
-});
-
-// 檢查瀏覽器是否支援 emoji 🗑️，不支援則顯示文字
-function supportsEmoji(char) {
-    const span = document.createElement('span');
-    span.textContent = char;
-    return span.textContent === char && span.innerText === char;
-}
-document.addEventListener('DOMContentLoaded', function() {
-    if (!supportsEmoji('🗑️')) {
-        document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none');
-        document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline');
-    }
-    if (!supportsEmoji('🧹')) {
-        document.querySelectorAll('.clear-icon').forEach(e => e.style.display = 'none');
-        document.querySelectorAll('.clear-fallback').forEach(e => e.style.display = 'inline');
-    }
-});
-
-// ===== 常用資訊管理 =====
-function renderCommonInfo() {
-    renderCommonPersonList();
-    renderCommonCostList();
-    renderCommonDiscountList();
-}
-
-function renderCommonPersonList() {
-    const list = document.getElementById('common-person-list');
-    list.innerHTML = '';
-    const commonNames = Array.from(new Set(appData.personnel.map(p => p.name.trim()).filter(name => name !== '')));
-    commonNames.forEach(name => {
-        const li = document.createElement('li');
-        li.textContent = name;
-        li.onclick = function() { insertCommonPersonName(name); };
-        list.appendChild(li);
-    });
-}
-
-function renderCommonCostList() {
-    const list = document.getElementById('common-cost-list');
-    list.innerHTML = '';
-    const commonCosts = appData.sharedCosts.map(sc => ({ name: sc.name, type: sc.cost.type, value: sc.cost.value, cap: sc.cost.cap }));
-    commonCosts.forEach((cost, idx) => {
-        const li = document.createElement('li');
-        li.textContent = `${cost.name} - ${cost.type === 'amount' ? '$' : ''}${cost.value}${cost.type === 'percent' ? '%' : ''}${cost.cap > 0 ? ' (上限: $' + cost.cap + ')' : ''}`;
-        li.onclick = function() { insertCommonCost(cost); };
-        list.appendChild(li);
-    });
-}
-
-function renderCommonDiscountList() {
-    const list = document.getElementById('common-discount-list');
-    list.innerHTML = '';
-    const commonDiscounts = appData.sharedDiscounts.map(sd => ({ name: sd.name, type: sd.discount.type, value: sd.discount.value, cap: sd.discount.cap }));
-    commonDiscounts.forEach((discount, idx) => {
-        const li = document.createElement('li');
-        li.textContent = `${discount.name} - ${discount.type === 'amount' ? '$' : ''}${discount.value}${discount.type === 'percent' ? '%' : ''}${discount.cap > 0 ? ' (上限: $' + discount.cap + ')' : ''}`;
-        li.onclick = function() { insertCommonDiscount(discount); };
-        list.appendChild(li);
-    });
-}
-
-// 插入常用資訊
-function insertCommonPersonName(name) {
-    const input = document.querySelector('.person-name-input');
-    if (input) {
-        input.value = name;
-        const id = parseInt(input.dataset.id);
-        updatePersonnel(id, 'name', name);
-        renderPersonnel();
-    }
-}
-
-function insertCommonCost(cost) {
-    appData.sharedCosts.push({ id: Date.now(), name: cost.name, cost: { type: cost.type, value: cost.value, cap: cost.cap }, method: 'evenly' });
-    saveData();
-    renderSharedCosts();
-}
-
-function insertCommonDiscount(discount) {
-    appData.sharedDiscounts.push({ id: Date.now(), name: discount.name, discount: { type: discount.type, value: discount.value, cap: discount.cap }, method: 'evenly' });
-    saveData();
-    renderSharedDiscounts();
-}
-
-// Modal 功能
-const modal = document.getElementById('common-info-modal');
-const settingsBtn = document.getElementById('settings-btn');
-const closeModalBtn = document.querySelector('.close-modal');
-
-settingsBtn.onclick = function() {
-    modal.style.display = 'flex';
-    renderCommonInfoLists();
-    // 同步刪除確認開關狀態
-    const cdToggle = document.getElementById('confirm-delete-toggle');
-    if (cdToggle) cdToggle.checked = !!appData.settings.confirmDelete;
-}
-
-closeModalBtn.onclick = function() {
-    modal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// ===== 常用資訊管理功能 =====
-const COMMON_KEY = 'splitBillCommonInfo_v1';
-function getCommonInfo() {
-    const data = localStorage.getItem(COMMON_KEY);
-    if (data) {
-        try {
-            const obj = JSON.parse(data);
-            return {
-                person: obj.person || [],
-                cost: obj.cost || [],
-                discount: obj.discount || []
-            };
-        } catch { }
-    }
-    return { person: [], cost: [], discount: [] };
-}
-function saveCommonInfo(info) {
-    localStorage.setItem(COMMON_KEY, JSON.stringify(info));
-}
-let commonInfo = getCommonInfo();
-
-function showCommonInfoModal() {
-    document.getElementById('common-info-modal').style.display = 'flex';
-    renderCommonInfoLists();
-}
-function hideCommonInfoModal() {
-    document.getElementById('common-info-modal').style.display = 'none';
-}
-function renderCommonInfoLists() {
-    ['person','cost','discount'].forEach(type => {
-        const ul = document.getElementById('common-' + type + '-list');
-        ul.innerHTML = '';
-        commonInfo[type].forEach((name, idx) => {
-            const li = document.createElement('li');
-            li.draggable = true;
-            li.dataset.idx = idx;
-            li.innerHTML = `<span>${name}</span><button class='delete-btn' title='刪除此項目' onclick='deleteCommonInfoItem("${type}",${idx})'><span class='delete-icon' aria-label='刪除' role='img'>✖️</span><span class='delete-fallback' style='display:none;'>刪除</span></button>`;
-            ul.appendChild(li);
-        });
-        setupCommonListDragAndDrop(ul, type);
-    });
-}
-function deleteCommonInfoItem(type, idx) {
-    if (appData.settings.confirmDelete) {
-        const name = commonInfo[type][idx];
-        const map = { person: '人員', cost: '費用', discount: '優惠' };
-        const label = map[type] || type;
-        if (!confirm(`確定要刪除「${label}：${name}」嗎？`)) return;
-    }
-    commonInfo[type].splice(idx,1);
-    saveCommonInfo(commonInfo);
-    updateCommonDatalists();
-    renderCommonInfoLists();
-}
-function setupCommonListDragAndDrop(ul, type) {
-    let draggedItem = null;
-    ul.querySelectorAll('li').forEach(item => {
-        item.addEventListener('dragstart', () => {
-            draggedItem = item;
-            setTimeout(() => item.classList.add('dragging'), 0);
-        });
-        item.addEventListener('dragend', () => {
-            if (draggedItem) draggedItem.classList.remove('dragging');
-            draggedItem = null;
-        });
-    });
-    ul.addEventListener('dragover', e => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(ul, e.clientY);
-        if (draggedItem) {
-            if (afterElement == null) ul.appendChild(draggedItem);
-            else ul.insertBefore(draggedItem, afterElement);
-        }
-    });
-    ul.addEventListener('drop', e => {
-        e.preventDefault();
-        const newOrder = [...ul.querySelectorAll('li')].map(li => parseInt(li.dataset.idx));
-        const newArr = newOrder.map(i => commonInfo[type][i]);
-        commonInfo[type] = newArr;
-        saveCommonInfo(commonInfo);
-    updateCommonDatalists();
-        renderCommonInfoLists();
-    });
-}
-
-// ===== 常用資訊自動寫入 =====
-function addCommonInfo(type, name) {
-    name = (name || '').trim();
-    if (!name) return;
-    if (!commonInfo[type].includes(name)) {
-        commonInfo[type].push(name);
-        saveCommonInfo(commonInfo);
-    }
-}
-
-function updateCommonDatalists() {
-    const personDL = document.getElementById('common-person-datalist');
-    const costDL = document.getElementById('common-cost-datalist');
-    const discountDL = document.getElementById('common-discount-datalist');
-    personDL.innerHTML = commonInfo.person.map(n => `<option value="${n}">`).join('');
-    costDL.innerHTML = commonInfo.cost.map(n => `<option value="${n}">`).join('');
-    discountDL.innerHTML = commonInfo.discount.map(n => `<option value="${n}">`).join('');
-}
-
-// 同步現有資料至常用資訊
 function syncCommonInfoFromAppData() {
-    // 人員
-    appData.personnel.forEach(p => {
-        addCommonInfo('person', p.name);
-    });
-    // 費用
-    appData.sharedCosts.forEach(sc => {
-        addCommonInfo('cost', sc.name);
-    });
-    // 優惠
-    appData.sharedDiscounts.forEach(sd => {
-        addCommonInfo('discount', sd.name);
-    });
-    updateCommonDatalists();
+    mealCostData.appData.personnel.forEach(p => addCommonInfo('person', p.name));
+    mealCostData.appData.sharedCosts.forEach(sc => addCommonInfo('cost', sc.name));
+    mealCostData.appData.sharedDiscounts.forEach(sd => addCommonInfo('discount', sd.name));
 }
+
+// ===== 初始化 (已更新以使用 mealCostData) =====
+document.addEventListener('DOMContentLoaded', () => {
+    // 檢查 emoji 支援
+    function supportsEmoji(char) { const span = document.createElement('span'); span.textContent = char; return span.textContent === char && span.innerText === char; }
+    if (!supportsEmoji('🗑️')) { document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none'); document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline'); }
+    if (!supportsEmoji('🧹')) { document.querySelectorAll('.clear-icon').forEach(e => e.style.display = 'none'); document.querySelectorAll('.clear-fallback').forEach(e => e.style.display = 'inline'); }
+
+    // Modal 事件綁定
+    const modal = document.getElementById('common-info-modal');
+    document.getElementById('settings-btn').onclick = () => { modal.style.display = 'flex'; };
+    document.querySelector('#common-info-modal .close-modal').onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; };
+    
+    // 從現有資料同步常用詞
+    syncCommonInfoFromAppData();
+
+    // 一次性設定好所有拖曳功能
+    setupDrag('#personnel-list', mealCostData.appData.personnel);
+    setupDrag('#shared-costs-list', mealCostData.appData.sharedCosts);
+    setupDrag('#shared-discounts-list', mealCostData.appData.sharedDiscounts);
+    setupOrderDragAndDrop();
+
+    // 首次渲染
+    render();
+});
 </script>
 
 </body>
