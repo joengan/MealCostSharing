@@ -43,7 +43,6 @@
             border-radius: 5px;
             flex-wrap: wrap;
         }
-        /* 【新增】讓拖曳中的項目有更明顯的樣式 */
         .item-row.dragging {
             opacity: 0.5;
             background: #cce5ff;
@@ -55,7 +54,7 @@
         }
         .item-row input[type="text"] { flex-grow: 1; min-width: 100px; }
         .item-row input[type="number"] { width: 100px; }
-        .discount-logic, .cost-logic { /* Added .cost-logic */
+        .discount-logic, .cost-logic {
             display: flex;
             align-items: center;
             gap: 5px;
@@ -95,7 +94,6 @@
             font-size: 16px;
             margin-top: 10px;
         }
-        /* 標題旁清空按鈕（圖示為主，缺支援時用文字） */
         .clear-btn {
             background: transparent;
             border: none;
@@ -108,9 +106,7 @@
             vertical-align: middle;
         }
         .clear-btn:hover { background: #f0f0f0; }
-        .calc-btn {
-            width: 100%;
-        }
+        .calc-btn { width: 100%; }
         .add-btn:hover, .calc-btn:hover, .temp-save-btn:hover { background-color: #45a049; }
         .temp-save-btn {
             background-color: #008CBA;
@@ -124,7 +120,6 @@
             padding: 10px;
             border: 1px dashed #aaa;
             border-radius: 5px;
-            /* RWD: 維持單行並可橫向滾動，避免多行導致判斷混亂 */
             flex-wrap: nowrap;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -137,7 +132,6 @@
             text-align: center;
             user-select: none;
             border: 2px solid #ccc;
-            /* RWD: 在可滾動容器內固定自身寬度比例 */
             flex: 0 0 auto;
         }
         .order-block.dragging { opacity: 0.5; background: #b0b0b0; }
@@ -164,22 +158,22 @@
             display: none;
         }
         .settings-area { margin-bottom: 15px; }
-    .settings-area label { font-weight: bold; }
-    .settings-area input { width: 60px; }
+        .settings-area label { font-weight: bold; }
+        .settings-area input { width: 60px; }
 
-    /* Switch styles (參考用) */
-    .switch { position: relative; display: inline-block; width: 60px; height: 34px; vertical-align: middle; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-    .switch input:checked + .slider { background-color: #2196F3; }
-    .switch input:checked + .slider:before { transform: translateX(26px); }
+        /* 開關切換樣式 */
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; vertical-align: middle; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+        .switch input:checked + .slider { background-color: #2196F3; }
+        .switch input:checked + .slider:before { transform: translateX(26px); }
 
-    /* 步驟列表樣式 */
-    .steps { margin: 6px 0 10px 0; padding-left: 16px; color: #2f4f4f; }
-    .steps li { margin: 2px 0; }
+        /* 計算步驟樣式 */
+        .steps { margin: 6px 0 10px 0; padding-left: 16px; color: #2f4f4f; }
+        .steps li { margin: 2px 0; }
         
-        /* Modal styles */
+        /* Modal */
         .modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -239,7 +233,7 @@
             z-index: 20;
         }
 
-        /* --- 自訂自動完成建議選單樣式 --- */
+        /* 自訂自動完成選單 */
         .autocomplete-container {
             position: relative;
             width: 100%;
@@ -257,7 +251,7 @@
             z-index: 100;
             max-height: 200px;
             overflow-y: auto;
-            margin-top: 10px; /* 【調整1】新增與輸入框的間距 */
+            margin-top: 10px;
         }
         .suggestion-item {
             padding: 8px 12px;
@@ -265,7 +259,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            user-select: none; /* 防止拖曳時選取文字 */
+            user-select: none;
         }
         .suggestion-item:hover, .suggestion-item.active {
             background-color: #f0f0f0;
@@ -287,11 +281,11 @@
             transition: outline-color 0.2s;
         }
         .suggestion-delete-btn:hover {
-            outline-color: #A292B5; /* 在暗模式下使用更亮的紅色，與圖示顏色一致 */
-            transform: scale(1.1); /* 稍微放大圖示，提供動態回饋 */
+            outline-color: #A292B5;
+            transform: scale(1.1);
         }
 
-        /* --- 【新增】拖曳時的預覽區塊樣式 --- */
+        /* 拖曳預覽區塊 */
         .placeholder {
             background: #f0f0f0;
             border: 2px dashed #aaa;
@@ -302,20 +296,15 @@
             margin-bottom: 10px;
         }
 
-        /* 暗黑模式覆寫 */
+        /* 暗黑模式 */
         @media (prefers-color-scheme: dark) {
             body { background-color: #121212; color: #e6e6e6; }
             .container { background: #1b1c1f; box-shadow: 0 6px 20px rgba(0,0,0,0.7); }
             h1, h2 { color: #f0f0f0; border-bottom-color: #5aa95e; }
 
-            /* 區塊更分明：加強邊框與陰影，略微提升背景亮度差 */
             .section { color: inherit; }
             .item-row { background-color: #22252a; border: 1px solid #3a3f45; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 6px rgba(0,0,0,0.35); }
-            /* 【新增】暗黑模式拖曳樣式 */
-            .item-row.dragging {
-                opacity: 0.5;
-                background: #3a3f45;
-            }
+            .item-row.dragging { opacity: 0.5; background: #3a3f45; }
             .item-row input, .item-row select { background-color: #2a2e35; color: #e6e6e6; border-color: #4b515a; }
             .item-row input::placeholder { color: #9aa0a6; }
             .item-row:focus-within { outline: 2px solid rgba(97, 218, 251, 0.3); outline-offset: 1px; }
@@ -345,7 +334,6 @@
             .switch .slider { background-color: #555; }
             .switch input:checked + .slider { background-color: #1b82d1; }
 
-            /* 暗黑模式的按鈕去亮化與降低飽和度，增加 hover 對比但不刺眼 */
             .add-btn, .calc-btn { background-color: #3c8f43; color: #fff; }
             .add-btn:hover, .calc-btn:hover { background-color: #377f3d; }
             .temp-save-btn { background-color: #1b82d1; }
@@ -353,11 +341,9 @@
 
             #settings-btn { color: #e6e6e6; }
 
-            /* 暗色模式下的清空按鈕 */
             .clear-btn { color: #c9c9c9; border-color: #555; }
             .clear-btn:hover { background: #2a2e35; }
             
-            /* 暗黑模式下的自訂選單 */
             .autocomplete-suggestions {
                 background-color: #2a2e35;
                 border-color: #4b515a;
@@ -373,10 +359,9 @@
                 color: #ff6b6b;
             }
             .suggestion-delete-btn:hover {
-                background-color: rgba(255, 107, 107, 0.25); /* 增加背景色的不透明度和亮度 */
-                transform: scale(1.1); /* 同樣加上放大效果 */
+                background-color: rgba(255, 107, 107, 0.25);
+                transform: scale(1.1);
             }
-            /* --- 【新增】暗黑模式下的預覽區塊 --- */
             .placeholder {
                 background: #2a2e35;
                 border-color: #555;
@@ -390,45 +375,34 @@
             h1 { font-size: 1.4rem; }
             h2 { font-size: 1.1rem; }
 
-            /* 表單列改為直向堆疊 */
             .item-row { flex-direction: column; align-items: stretch; gap: 8px; }
             .item-row label { width: 100%; }
             .item-row input, .item-row select { width: 100%; box-sizing: border-box; }
             .discount-logic, .cost-logic { flex-wrap: wrap; }
             .item-row input[type="number"] { width: 100%; }
 
-            /* 按鈕全寬，觸控更好點擊 */
             .add-btn, .calc-btn, .temp-save-btn { width: 100%; margin: 6px 0 0 0; }
             .delete-btn { align-self: flex-end; padding: 10px 8px; }
-            /* 僅限三個輸入區的刪除鍵在手機撐滿整行，提升可點擊性 */
             .item-row .delete-btn { width: 100%; align-self: stretch; justify-content: center; }
 
-            /* 設定區改單欄排列 */
             .settings-area { display: grid; grid-template-columns: 1fr; row-gap: 8px; }
             .settings-area input { width: 100%; }
 
-            /* 計算順序區縮小區塊並允許左右滑動 */
             #calculation-order-container { gap: 10px; }
             .order-block { padding: 10px 14px; font-size: 14px; }
 
-            /* 結果區字級適度縮小 */
             #results p { font-size: 1rem; }
 
-            /* Modal 在手機上自適應 */
             .modal-content { min-width: auto; width: 92vw; padding: 20px 16px; }
 
-            /* 設定按鈕在小螢幕微調位置與尺寸 */
             #settings-btn { top: 12px; right: 12px; font-size: 24px; }
 
-            /* 避免瀏海/安全區遮住內容（iOS） */
             body { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         }
 
-        /* 【調整2】針對桌機版的選單微調 */
+        /* 桌機版選單微調 */
         @media (min-width: 769px) {
-            .suggestion-delete-btn {
-                font-size: 10px; /* 稍微縮小刪除圖示 */
-            }
+            .suggestion-delete-btn { font-size: 10px; }
         }
     </style>
 </head>
@@ -445,7 +419,7 @@
             </button>
         </h2>
         <div id="personnel-list"></div>
-    <button class="add-btn" onclick="addPersonnel()">新增項目</button>
+        <button class="add-btn" onclick="addPersonnel()">新增項目</button>
     </div>
 
     <div class="section">
@@ -456,7 +430,7 @@
             </button>
         </h2>
         <div id="shared-costs-list"></div>
-    <button class="add-btn" onclick="addSharedCost()">新增均分費用</button>
+        <button class="add-btn" onclick="addSharedCost()">新增均分費用</button>
     </div>
 
     <div class="section">
@@ -467,7 +441,7 @@
             </button>
         </h2>
         <div id="shared-discounts-list"></div>
-    <button class="add-btn" onclick="addSharedDiscount()">新增共同優惠</button>
+        <button class="add-btn" onclick="addSharedDiscount()">新增共同優惠</button>
     </div>
     
     <div class="section">
@@ -511,37 +485,45 @@
       <div class="modal-content">
         <span class="close-modal" title="關閉">&times;</span>
         <h2>偏好設定</h2>
-                <div class="common-list-block">
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
-                        <span style="font-weight:bold;">刪除「項目」時確認</span>
-                        <label class="switch">
-                            <input type="checkbox" id="confirm-delete-item-toggle" onchange="updateSettings('confirmDeleteItem', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                        <small>刪除「人員、均分費用、共同優惠」項目時，跳出確認提示。</small>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <span style="font-weight:bold;">刪除「常用選項」時確認</span>
-                        <label class="switch">
-                            <input type="checkbox" id="confirm-delete-option-toggle" onchange="updateSettings('confirmDeleteOption', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                        <small>從輸入建議選單中刪除常用名稱時，跳出確認提示。</small>
-                    </div>
-                </div>
+        <div class="common-list-block">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
+                <span style="font-weight:bold;">刪除「項目」時確認</span>
+                <label class="switch">
+                    <input type="checkbox" id="confirm-delete-item-toggle" onchange="updateSettings('confirmDeleteItem', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <small>刪除「人員、均分費用、共同優惠」項目時，跳出確認提示。</small>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-weight:bold;">刪除「常用選項」時確認</span>
+                <label class="switch">
+                    <input type="checkbox" id="confirm-delete-option-toggle" onchange="updateSettings('confirmDeleteOption', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <small>從輸入建議選單中刪除常用名稱時，跳出確認提示。</small>
+            </div>
+        </div>
       </div>
     </div>
 </div>
 
 <script>
-// ===== SCRIPT START =====
-// 【修改】統一的儲存鍵，移除版本號
+/**
+ * 餐費計算機
+ * - 管理人員、均分費用、共同優惠，並依自訂順序進行計算。
+ * - 使用 localStorage（UNIFIED_STORAGE_KEY）儲存整體資料（appData + commonInfo）。
+ * - 自動完成建議：維護常用清單，可拖曳排序與刪除。
+ */
+
+// 常數與預設資料
+/** localStorage 統一儲存鍵 */
 const UNIFIED_STORAGE_KEY = 'MealCostSharingData';
-// 【新增】舊的儲存鍵，用於資料遷移
+/** 舊版儲存鍵（資料遷移） */
 const OLD_STORAGE_KEY = 'splitBillCalculatorData_v2';
+/** 舊版常用清單儲存鍵（資料遷移） */
 const OLD_COMMON_KEY = 'splitBillCommonInfo_v1';
 
-// 【修改】統一的預設資料結構
+/** 預設資料結構 */
 const defaultMealCostData = {
     appData: {
         personnel: [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }],
@@ -563,12 +545,21 @@ const defaultMealCostData = {
     }
 };
 
-// 【修改】將所有應用程式資料儲存在一個物件中
+/** 目前的應用資料（啟動時載入或遷移） */
 let mealCostData = loadInitialData();
 
 
-// ===== Custom Autocomplete Class (已更新以使用 mealCostData) =====
+/**
+ * 自訂自動完成建議清單
+ * - 依輸入值即時篩選建議
+ * - 支援鍵盤操作（上下、Enter、Esc）
+ * - 支援在清單內拖曳排序與刪除
+ */
 class CustomAutocomplete {
+    /**
+     * @param {HTMLInputElement} inputElement 文字輸入框
+     * @param {'person'|'cost'|'discount'} type 建議清單類別
+     */
     constructor(inputElement, type) {
         this.input = inputElement;
         this.type = type;
@@ -579,21 +570,21 @@ class CustomAutocomplete {
         this.dragStartIndex = -1;
         this.isDragging = false;
         this.clickTimeout = null;
-        this.placeholder = null; 
+        this.placeholder = null;
         this.init();
     }
 
+    /** 綁定輸入、焦點、鍵盤與點擊事件 */
     init() {
         this.input.addEventListener('focus', () => this.showSuggestions());
         this.input.addEventListener('input', () => this.showSuggestions());
         this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
         document.addEventListener('click', (e) => {
-            if (!this.container.contains(e.target)) {
-                this.hideSuggestions();
-            }
+            if (!this.container.contains(e.target)) this.hideSuggestions();
         });
     }
 
+    /** 顯示建議清單，並根據輸入值篩選 */
     showSuggestions() {
         const value = this.input.value.toLowerCase();
         const suggestions = mealCostData.commonInfo[this.type].filter(item => item.toLowerCase().includes(value));
@@ -611,10 +602,9 @@ class CustomAutocomplete {
             this.hideSuggestions();
             return;
         }
-        
         this.suggestionsContainer.style.display = 'block';
 
-        suggestions.forEach((item, index) => {
+        suggestions.forEach((item) => {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'suggestion-item';
             itemDiv.dataset.value = item;
@@ -631,9 +621,7 @@ class CustomAutocomplete {
                 e.stopPropagation();
                 const originalIndex = mealCostData.commonInfo[this.type].indexOf(item);
                 if (originalIndex > -1) {
-                    deleteCommonInfoItem(this.type, originalIndex, () => {
-                        this.showSuggestions();
-                    });
+                    deleteCommonInfoItem(this.type, originalIndex, () => this.showSuggestions());
                 }
             });
             itemDiv.appendChild(deleteBtn);
@@ -655,15 +643,11 @@ class CustomAutocomplete {
                     this.placeholder.className = 'suggestion-item placeholder';
                     const rect = this.draggedItem.getBoundingClientRect();
                     this.placeholder.style.height = `${rect.height}px`;
-                    
                 }, 200);
 
                 const onMouseMove = (moveE) => {
-                    if (this.isDragging) {
-                        this.handleDrag(moveE);
-                    }
+                    if (this.isDragging) this.handleDrag(moveE);
                 };
-
                 const onMouseUp = () => {
                     clearTimeout(this.clickTimeout);
                     if (!this.isDragging) {
@@ -671,11 +655,9 @@ class CustomAutocomplete {
                     } else {
                         this.draggedItem.classList.remove('dragging');
                         this.suggestionsContainer.style.cursor = '';
-                        
                         if (this.placeholder && this.placeholder.parentNode) {
                             this.placeholder.parentNode.replaceChild(this.draggedItem, this.placeholder);
                         }
-                        
                         this.updateCommonInfoOrder();
                     }
                     this.draggedItem = null;
@@ -694,66 +676,93 @@ class CustomAutocomplete {
         });
     }
 
+    /**
+     * 拖曳中：移動預留位置
+     * @param {MouseEvent} e 滑鼠事件
+     */
     handleDrag(e) {
         if (!this.draggedItem || !this.placeholder) return;
         const afterElement = this.getDragAfterElement(this.suggestionsContainer, e.clientY);
-        
-        if (afterElement == null) {
-            this.suggestionsContainer.appendChild(this.placeholder);
-        } else {
-            this.suggestionsContainer.insertBefore(this.placeholder, afterElement);
-        }
+        if (afterElement == null) this.suggestionsContainer.appendChild(this.placeholder);
+        else this.suggestionsContainer.insertBefore(this.placeholder, afterElement);
     }
     
+    /**
+     * 取得清單中的插入參考元素
+     * @param {HTMLElement} container 容器
+     * @param {number} y 目前滑鼠 Y 座標
+     * @returns {HTMLElement|null} 參考元素
+     */
     getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.suggestion-item:not(.dragging):not(.placeholder)')];
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
             const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
+            if (offset < 0 && offset > closest.offset) return { offset, element: child };
+            return closest;
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
+    /** 將清單新順序回寫至 commonInfo 並儲存 */
     updateCommonInfoOrder() {
-        const newOrder = [...this.suggestionsContainer.querySelectorAll('.suggestion-item:not(.placeholder)')].map(item => item.dataset.value);
+        const newOrder = [...this.suggestionsContainer.querySelectorAll('.suggestion-item:not(.placeholder)')]
+            .map(item => item.dataset.value);
         const originalArray = mealCostData.commonInfo[this.type];
         const newArray = newOrder.concat(originalArray.filter(item => !newOrder.includes(item)));
         mealCostData.commonInfo[this.type] = newArray;
         saveData();
     }
     
+    /**
+     * 選取建議值並觸發 change 事件
+     * @param {string} value 選取文字
+     */
     selectSuggestion(value) {
         this.input.value = value;
         this.hideSuggestions();
         this.input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
+    /** 隱藏建議清單 */
     hideSuggestions() {
-        if (this.suggestionsContainer) {
-            this.suggestionsContainer.style.display = 'none';
-        }
+        if (this.suggestionsContainer) this.suggestionsContainer.style.display = 'none';
     }
 
+    /**
+     * 鍵盤操作：上下選取、Enter 確認、Esc 關閉
+     * @param {KeyboardEvent} e 鍵盤事件
+     */
     handleKeydown(e) {
         if (!this.suggestionsContainer || this.suggestionsContainer.style.display === 'none') return;
         const items = this.suggestionsContainer.querySelectorAll('.suggestion-item');
         if (items.length === 0) return;
         switch (e.key) {
             case 'ArrowDown':
-                e.preventDefault(); this.activeSuggestionIndex = (this.activeSuggestionIndex + 1) % items.length; this.updateActiveSuggestion(items); break;
+                e.preventDefault();
+                this.activeSuggestionIndex = (this.activeSuggestionIndex + 1) % items.length;
+                this.updateActiveSuggestion(items);
+                break;
             case 'ArrowUp':
-                e.preventDefault(); this.activeSuggestionIndex = (this.activeSuggestionIndex - 1 + items.length) % items.length; this.updateActiveSuggestion(items); break;
+                e.preventDefault();
+                this.activeSuggestionIndex = (this.activeSuggestionIndex - 1 + items.length) % items.length;
+                this.updateActiveSuggestion(items);
+                break;
             case 'Enter':
-                e.preventDefault(); if (this.activeSuggestionIndex > -1) { this.selectSuggestion(items[this.activeSuggestionIndex].dataset.value); } break;
+                e.preventDefault();
+                if (this.activeSuggestionIndex > -1) {
+                    this.selectSuggestion(items[this.activeSuggestionIndex].dataset.value);
+                }
+                break;
             case 'Escape':
-                this.hideSuggestions(); break;
+                this.hideSuggestions();
+                break;
         }
     }
     
+    /**
+     * 更新鍵盤高亮的建議項目並確保可見
+     * @param {NodeListOf<HTMLElement>} items 建議集合
+     */
     updateActiveSuggestion(items) {
         items.forEach((item, index) => {
             item.classList.toggle('active', index === this.activeSuggestionIndex);
@@ -763,7 +772,10 @@ class CustomAutocomplete {
 }
 
 
-// ===== 資料處理 (存/讀) (已重構) =====
+/**
+ * 將資料儲存至 localStorage
+ * @returns {void}
+ */
 function saveData() { 
     try { 
         localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(mealCostData)); 
@@ -772,16 +784,26 @@ function saveData() {
     } 
 }
 
+/**
+ * 載入啟動資料：
+ * 1) 讀取統一鍵；
+ * 2) 若無則嘗試自舊版鍵遷移；
+ * 3) 失敗時回傳預設值。
+ * 同時合併預設結構，確保新增欄位存在。
+ * @returns {{appData: any, commonInfo: any}} 初始化後的資料物件
+ */
 function loadInitialData() {
-    // 1. 嘗試從新的統一鍵載入
     const unifiedDataStr = localStorage.getItem(UNIFIED_STORAGE_KEY);
     if (unifiedDataStr) {
         try {
             const loadedData = JSON.parse(unifiedDataStr);
-            // 與預設值合併，確保所有屬性都存在，避免未來新增屬性時出錯
             const defaultAppData = defaultMealCostData.appData;
             const defaultCommonInfo = defaultMealCostData.commonInfo;
-            const finalAppData = { ...defaultAppData, ...(loadedData.appData || {}), settings: { ...defaultAppData.settings, ...(loadedData.appData ? loadedData.appData.settings : {}) } };
+            const finalAppData = {
+                ...defaultAppData,
+                ...(loadedData.appData || {}),
+                settings: { ...defaultAppData.settings, ...(loadedData.appData ? loadedData.appData.settings : {}) }
+            };
             const finalCommonInfo = { ...defaultCommonInfo, ...(loadedData.commonInfo || {}) };
             return { appData: finalAppData, commonInfo: finalCommonInfo };
         } catch (e) {
@@ -790,18 +812,15 @@ function loadInitialData() {
         }
     }
 
-    // 2. 若找不到，嘗試從舊的鍵遷移資料
     const oldAppDataStr = localStorage.getItem(OLD_STORAGE_KEY);
     const oldCommonInfoStr = localStorage.getItem(OLD_COMMON_KEY);
 
     if (oldAppDataStr) {
         console.log("Migrating data from old version...");
-        let migratedData = JSON.parse(JSON.stringify(defaultMealCostData)); // 從一個乾淨的預設結構開始
+        let migratedData = JSON.parse(JSON.stringify(defaultMealCostData));
 
-        // 遷移 appData
         try {
             const savedAppData = JSON.parse(oldAppDataStr);
-            // 向後相容性：處理舊的 sharedCosts 結構
             if (savedAppData.sharedCosts && savedAppData.sharedCosts.length > 0) {
                 savedAppData.sharedCosts.forEach(sc => {
                     if (typeof sc.amount !== 'undefined' && typeof sc.cost === 'undefined') {
@@ -810,28 +829,33 @@ function loadInitialData() {
                     }
                 });
             }
-            // 向後相容性：處理舊的 settings 結構
             if (savedAppData.settings && typeof savedAppData.settings.confirmDelete !== 'undefined') {
                 savedAppData.settings.confirmDeleteItem = savedAppData.settings.confirmDelete;
                 savedAppData.settings.confirmDeleteOption = savedAppData.settings.confirmDelete;
                 delete savedAppData.settings.confirmDelete;
             }
-            migratedData.appData = { ...migratedData.appData, ...savedAppData, settings: { ...migratedData.appData.settings, ...(savedAppData.settings || {}) } };
+            migratedData.appData = {
+                ...migratedData.appData,
+                ...savedAppData,
+                settings: { ...migratedData.appData.settings, ...(savedAppData.settings || {}) }
+            };
         } catch (e) {
             console.error("Error parsing old appData during migration:", e);
         }
 
-        // 遷移 commonInfo
         if (oldCommonInfoStr) {
             try {
                 const savedCommonInfo = JSON.parse(oldCommonInfoStr);
-                migratedData.commonInfo = { person: savedCommonInfo.person || [], cost: savedCommonInfo.cost || [], discount: savedCommonInfo.discount || [] };
+                migratedData.commonInfo = {
+                    person: savedCommonInfo.person || [],
+                    cost: savedCommonInfo.cost || [],
+                    discount: savedCommonInfo.discount || []
+                };
             } catch (e) {
                 console.error("Error parsing old commonInfo during migration:", e);
             }
         }
         
-        // 將新遷移的資料存入統一鍵，並移除舊的鍵
         try {
             localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(migratedData));
             localStorage.removeItem(OLD_STORAGE_KEY);
@@ -843,11 +867,14 @@ function loadInitialData() {
         return migratedData;
     }
 
-    // 3. 如果什麼都找不到，返回全新的預設結構
     return JSON.parse(JSON.stringify(defaultMealCostData));
 }
 
-// ===== 渲染畫面 (已更新以使用 mealCostData) =====
+
+/**
+ * 重新渲染整體畫面（人員/費用/優惠/順序/設定）
+ * @returns {void}
+ */
 function render() {
     renderPersonnel();
     renderSharedCosts();
@@ -856,6 +883,10 @@ function render() {
     renderSettings();
 }
 
+/**
+ * 渲染人員清單與事件綁定
+ * @returns {void}
+ */
 function renderPersonnel() {
     const list = document.getElementById('personnel-list');
     list.innerHTML = '';
@@ -869,11 +900,17 @@ function renderPersonnel() {
             <label>餐費: <input type="number" min="0" value="${p.mealCost}" class="person-mealcost-input" data-id="${p.id}"></label>
             <div class="discount-logic">
                 <label>折扣:</label>
-                <select class="person-discount-type" data-id="${p.id}"><option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
+                <select class="person-discount-type" data-id="${p.id}">
+                    <option value="amount" ${p.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${p.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
                 <input type="number" min="0" value="${p.discount.value}" class="person-discount-value" data-id="${p.id}">
                 ${p.discount.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${p.discount.cap}" class="person-discount-cap" data-id="${p.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <button class="delete-btn" title="刪除此人員" onclick="deletePersonnel(${p.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class="delete-fallback" style="display:none;">刪除</span></button>
+            <button class="delete-btn" title="刪除此人員" onclick="deletePersonnel(${p.id})">
+                <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+                <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
         `;
         list.appendChild(div);
     });
@@ -886,12 +923,33 @@ function renderPersonnel() {
             addCommonInfo('person', this.value);
         };
     });
-    list.querySelectorAll('.person-mealcost-input').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'mealCost', parseFloat(this.value) || 0); }; });
-    list.querySelectorAll('.person-discount-type').forEach(sel => { sel.onchange = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.type', this.value); renderPersonnel(); }; });
-    list.querySelectorAll('.person-discount-value').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0); }; });
-    list.querySelectorAll('.person-discount-cap').forEach(input => { input.oninput = function() { updatePersonnel(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0); }; });
+    list.querySelectorAll('.person-mealcost-input').forEach(input => {
+        input.oninput = function() {
+            updatePersonnel(parseInt(this.dataset.id), 'mealCost', parseFloat(this.value) || 0);
+        };
+    });
+    list.querySelectorAll('.person-discount-type').forEach(sel => {
+        sel.onchange = function() {
+            updatePersonnel(parseInt(this.dataset.id), 'discount.type', this.value);
+            renderPersonnel();
+        };
+    });
+    list.querySelectorAll('.person-discount-value').forEach(input => {
+        input.oninput = function() {
+            updatePersonnel(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0);
+        };
+    });
+    list.querySelectorAll('.person-discount-cap').forEach(input => {
+        input.oninput = function() {
+            updatePersonnel(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0);
+        };
+    });
 }
 
+/**
+ * 渲染均分費用清單與事件綁定
+ * @returns {void}
+ */
 function renderSharedCosts() {
     const list = document.getElementById('shared-costs-list');
     list.innerHTML = '';
@@ -904,23 +962,59 @@ function renderSharedCosts() {
             <label>費用名稱: <div class="autocomplete-container"><input type="text" value="${sc.name}" class="shared-cost-name-input" data-id="${sc.id}"></div></label>
             <div class="cost-logic">
                 <label>費用:</label>
-                <select class="shared-cost-type-input" data-id="${sc.id}"><option value="amount" ${sc.cost.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${sc.cost.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
+                <select class="shared-cost-type-input" data-id="${sc.id}">
+                    <option value="amount" ${sc.cost.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${sc.cost.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
                 <input type="number" min="0" value="${sc.cost.value}" class="shared-cost-value-input" data-id="${sc.id}">
                 ${sc.cost.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${sc.cost.cap}" class="shared-cost-cap-input" data-id="${sc.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <label>攤分方式: <select class="shared-cost-method-input" data-id="${sc.id}"><option value="evenly" ${sc.method === 'evenly' ? 'selected' : ''}>平均攤分</option><option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option></select></label>
-            <button class="delete-btn" title="刪除此費用" onclick="deleteSharedCost(${sc.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class.delete-fallback" style="display:none;">刪除</span></button>
+            <label>攤分方式:
+                <select class="shared-cost-method-input" data-id="${sc.id}">
+                    <option value="evenly" ${sc.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
+                    <option value="proportionally" ${sc.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
+                </select>
+            </label>
+            <button class="delete-btn" title="刪除此費用" onclick="deleteSharedCost(${sc.id})">
+                <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+                <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
         `;
         list.appendChild(div);
     });
 
-    list.querySelectorAll('.shared-cost-name-input').forEach(input => { new CustomAutocomplete(input, 'cost'); input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'name', this.value); }); });
-    list.querySelectorAll('.shared-cost-type-input').forEach(input => { input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.type', this.value); }); });
-    list.querySelectorAll('.shared-cost-value-input').forEach(input => { input.addEventListener('input', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.value', parseFloat(this.value) || 0); }); });
-    list.querySelectorAll('.shared-cost-cap-input').forEach(input => { input.addEventListener('input', function() { updateSharedCost(parseInt(this.dataset.id), 'cost.cap', parseFloat(this.value) || 0); }); });
-    list.querySelectorAll('.shared-cost-method-input').forEach(input => { input.addEventListener('change', function() { updateSharedCost(parseInt(this.dataset.id), 'method', this.value); }); });
+    list.querySelectorAll('.shared-cost-name-input').forEach(input => {
+        new CustomAutocomplete(input, 'cost');
+        input.addEventListener('change', function() {
+            updateSharedCost(parseInt(this.dataset.id), 'name', this.value);
+        });
+    });
+    list.querySelectorAll('.shared-cost-type-input').forEach(input => {
+        input.addEventListener('change', function() {
+            updateSharedCost(parseInt(this.dataset.id), 'cost.type', this.value);
+        });
+    });
+    list.querySelectorAll('.shared-cost-value-input').forEach(input => {
+        input.addEventListener('input', function() {
+            updateSharedCost(parseInt(this.dataset.id), 'cost.value', parseFloat(this.value) || 0);
+        });
+    });
+    list.querySelectorAll('.shared-cost-cap-input').forEach(input => {
+        input.addEventListener('input', function() {
+            updateSharedCost(parseInt(this.dataset.id), 'cost.cap', parseFloat(this.value) || 0);
+        });
+    });
+    list.querySelectorAll('.shared-cost-method-input').forEach(input => {
+        input.addEventListener('change', function() {
+            updateSharedCost(parseInt(this.dataset.id), 'method', this.value);
+        });
+    });
 }
 
+/**
+ * 渲染共同優惠清單與事件綁定
+ * @returns {void}
+ */
 function renderSharedDiscounts() {
     const list = document.getElementById('shared-discounts-list');
     list.innerHTML = '';
@@ -933,24 +1027,62 @@ function renderSharedDiscounts() {
             <label>優惠名稱: <div class="autocomplete-container"><input type="text" value="${sd.name}" class="shared-discount-name-input" data-id="${sd.id}"></div></label>
             <div class="discount-logic">
                 <label>優惠:</label>
-                <select class="shared-discount-type-input" data-id="${sd.id}"><option value="amount" ${sd.discount.type === 'amount' ? 'selected' : ''}>金額</option><option value="percent" ${sd.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option></select>
+                <select class="shared-discount-type-input" data-id="${sd.id}">
+                    <option value="amount" ${sd.discount.type === 'amount' ? 'selected' : ''}>金額</option>
+                    <option value="percent" ${sd.discount.type === 'percent' ? 'selected' : ''}>比例(%)</option>
+                </select>
                 <input type="number" min="0" value="${sd.discount.value}" class="shared-discount-value-input" data-id="${sd.id}">
                  ${sd.discount.type === 'percent' ? `<label>上限: <input type="number" min="0" value="${sd.discount.cap}" class="shared-discount-cap-input" data-id="${sd.id}"></label><small>(0為無上限)</small>` : ''}
             </div>
-            <label>攤分方式: <select class="shared-discount-method-input" data-id="${sd.id}"><option value="evenly" ${sd.method === 'evenly' ? 'selected' : ''}>平均攤分</option><option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option></select></label>
-            <button class="delete-btn" title="刪除此優惠" onclick="deleteSharedDiscount(${sd.id})"><span class="delete-icon" aria-label="刪除" role="img">🗑️</span><span class="delete-fallback" style="display:none;">刪除</span></button>
+            <label>攤分方式:
+                <select class="shared-discount-method-input" data-id="${sd.id}">
+                    <option value="evenly" ${sd.method === 'evenly' ? 'selected' : ''}>平均攤分</option>
+                    <option value="proportionally" ${sd.method === 'proportionally' ? 'selected' : ''}>按餐費比例</option>
+                </select>
+            </label>
+            <button class="delete-btn" title="刪除此優惠" onclick="deleteSharedDiscount(${sd.id})">
+                <span class="delete-icon" aria-label="刪除" role="img">🗑️</span>
+                <span class="delete-fallback" style="display:none;">刪除</span>
+            </button>
         `;
         list.appendChild(div);
     });
 
-    list.querySelectorAll('.shared-discount-name-input').forEach(input => { new CustomAutocomplete(input, 'discount'); input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'name', this.value); }); });
-    list.querySelectorAll('.shared-discount-type-input').forEach(input => { input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.type', this.value); }); });
-    list.querySelectorAll('.shared-discount-value-input').forEach(input => { input.addEventListener('input', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0); }); });
-    list.querySelectorAll('.shared-discount-cap-input').forEach(input => { input.addEventListener('input', function() { updateSharedDiscount(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0); }); });
-    list.querySelectorAll('.shared-discount-method-input').forEach(input => { input.addEventListener('change', function() { updateSharedDiscount(parseInt(this.dataset.id), 'method', this.value); }); });
+    list.querySelectorAll('.shared-discount-name-input').forEach(input => {
+        new CustomAutocomplete(input, 'discount');
+        input.addEventListener('change', function() {
+            updateSharedDiscount(parseInt(this.dataset.id), 'name', this.value);
+        });
+    });
+    list.querySelectorAll('.shared-discount-type-input').forEach(input => {
+        input.addEventListener('change', function() {
+            updateSharedDiscount(parseInt(this.dataset.id), 'discount.type', this.value);
+        });
+    });
+    list.querySelectorAll('.shared-discount-value-input').forEach(input => {
+        input.addEventListener('input', function() {
+            updateSharedDiscount(parseInt(this.dataset.id), 'discount.value', parseFloat(this.value) || 0);
+        });
+    });
+    list.querySelectorAll('.shared-discount-cap-input').forEach(input => {
+        input.addEventListener('input', function() {
+            updateSharedDiscount(parseInt(this.dataset.id), 'discount.cap', parseFloat(this.value) || 0);
+        });
+    });
+    list.querySelectorAll('.shared-discount-method-input').forEach(input => {
+        input.addEventListener('change', function() {
+            updateSharedDiscount(parseInt(this.dataset.id), 'method', this.value);
+        });
+    });
 }
 
-// ===== 拖曳排序函式 (已更新以使用 mealCostData) =====
+
+/**
+ * 為指定清單啟用拖曳排序，並在 drop 後更新對應資料順序
+ * @param {string} listSelector 容器選擇器
+ * @param {Array} dataArray 對應資料陣列參考
+ * @returns {void}
+ */
 function setupDrag(listSelector, dataArray) {
     const list = document.querySelector(listSelector);
     let draggedItem = null;
@@ -959,25 +1091,17 @@ function setupDrag(listSelector, dataArray) {
     list.addEventListener('dragstart', (e) => {
         if (e.target.closest('.item-row')) {
             draggedItem = e.target.closest('.item-row');
-            
             placeholder = document.createElement('div');
             placeholder.className = 'item-row placeholder';
             const rect = draggedItem.getBoundingClientRect();
             placeholder.style.height = `${rect.height}px`;
-
-            setTimeout(() => {
-                draggedItem.classList.add('dragging');
-            }, 0);
+            setTimeout(() => draggedItem.classList.add('dragging'), 0);
         }
     });
 
     list.addEventListener('dragend', () => {
-        if (draggedItem) {
-            draggedItem.classList.remove('dragging');
-        }
-        if (placeholder && placeholder.parentNode) {
-            placeholder.remove();
-        }
+        if (draggedItem) draggedItem.classList.remove('dragging');
+        if (placeholder && placeholder.parentNode) placeholder.remove();
         draggedItem = null;
         placeholder = null;
     });
@@ -986,19 +1110,15 @@ function setupDrag(listSelector, dataArray) {
         e.preventDefault();
         if (!placeholder) return;
         const afterElement = getDragAfterElementForRow(list, e.clientY);
-        if (afterElement == null) {
-            list.appendChild(placeholder);
-        } else {
-            list.insertBefore(placeholder, afterElement);
-        }
+        if (afterElement == null) list.appendChild(placeholder);
+        else list.insertBefore(placeholder, afterElement);
     });
 
     list.addEventListener('drop', e => {
         e.preventDefault();
         if (!draggedItem || !placeholder || !placeholder.parentNode) return;
-
         placeholder.parentNode.replaceChild(draggedItem, placeholder);
-        placeholder = null; 
+        placeholder = null;
         
         const newOrder = [...list.querySelectorAll('.item-row')].map(div => parseInt(div.dataset.id));
         const newArr = newOrder.map(id => dataArray.find(item => item.id === id)).filter(Boolean);
@@ -1011,23 +1131,34 @@ function setupDrag(listSelector, dataArray) {
     });
 }
 
+/**
+ * 取得垂直列表中拖曳插入位置參考元素
+ * @param {HTMLElement} container 容器
+ * @param {number} y 滑鼠 Y 座標
+ * @returns {HTMLElement|null} 參考元素
+ */
 function getDragAfterElementForRow(container, y) {
     const draggableElements = [...container.querySelectorAll('.item-row:not(.dragging):not(.placeholder)')];
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        } else {
-            return closest;
-        }
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+/**
+ * 渲染計算順序區塊（水平拖曳）
+ * @returns {void}
+ */
 function renderCalculationOrder() {
     const container = document.getElementById('calculation-order-container');
     container.innerHTML = '';
-    const nameMap = { personnel: '(+) 人員區', sharedDiscounts: '(-) 共同優惠區', sharedCosts: '(+) 均分費用區' };
+    const nameMap = {
+        personnel: '(+) 人員區',
+        sharedDiscounts: '(-) 共同優惠區',
+        sharedCosts: '(+) 均分費用區'
+    };
     mealCostData.appData.calculationOrder.forEach(key => {
         const div = document.createElement('div');
         div.className = 'order-block';
@@ -1038,6 +1169,10 @@ function renderCalculationOrder() {
     });
 }
 
+/**
+ * 渲染設定區（進位方式、小數位數、顯示步驟、刪除確認）
+ * @returns {void}
+ */
 function renderSettings() {
     document.getElementById('decimal-places').value = mealCostData.appData.settings.decimalPlaces;
     document.getElementById('rounding-method').value = mealCostData.appData.settings.roundingMethod || 'round';
@@ -1047,17 +1182,26 @@ function renderSettings() {
     document.getElementById('calc-steps').style.display = mealCostData.appData.settings.showSteps ? 'block' : 'none';
 }
 
-// ===== 計算順序區的拖曳函式 (已更新以使用 mealCostData) =====
+/**
+ * 取得水平拖曳時的插入參考元素
+ * @param {HTMLElement} container 容器
+ * @param {number} x 滑鼠 X 座標
+ * @returns {HTMLElement|null} 參考元素
+ */
 function getDragAfterElementForHorizontal(container, x) {
     const draggableElements = [...container.querySelectorAll('.order-block:not(.dragging):not(.placeholder)')];
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = x - box.left - box.width / 2;
-        if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } 
-        else { return closest; }
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+/**
+ * 啟用計算順序區塊的拖曳排序
+ * @returns {void}
+ */
 function setupOrderDragAndDrop() {
     const container = document.getElementById('calculation-order-container');
     let draggedItem = null;
@@ -1071,13 +1215,13 @@ function setupOrderDragAndDrop() {
             const rect = draggedItem.getBoundingClientRect();
             placeholder.style.width = `${rect.width}px`;
             placeholder.style.height = `${rect.height}px`;
-            setTimeout(() => { draggedItem.classList.add('dragging'); }, 0);
+            setTimeout(() => draggedItem.classList.add('dragging'), 0);
         }
     });
 
     container.addEventListener('dragend', () => {
-        if (draggedItem) { draggedItem.classList.remove('dragging'); }
-        if (placeholder && placeholder.parentNode) { placeholder.remove(); }
+        if (draggedItem) draggedItem.classList.remove('dragging');
+        if (placeholder && placeholder.parentNode) placeholder.remove();
         draggedItem = null;
         placeholder = null;
     });
@@ -1086,8 +1230,8 @@ function setupOrderDragAndDrop() {
         e.preventDefault();
         if (!placeholder) return;
         const afterElement = getDragAfterElementForHorizontal(container, e.clientX);
-        if (afterElement == null) { container.appendChild(placeholder); } 
-        else { container.insertBefore(placeholder, afterElement); }
+        if (afterElement == null) container.appendChild(placeholder);
+        else container.insertBefore(placeholder, afterElement);
     });
     
     container.addEventListener('drop', e => {
@@ -1100,58 +1244,237 @@ function setupOrderDragAndDrop() {
     });
 }
 
-// ===== 其餘函式 (已更新以使用 mealCostData) =====
-function updateSettings(key, value) { mealCostData.appData.settings[key] = value; saveData(); renderSettings(); }
-function addPersonnel() { mealCostData.appData.personnel.push({ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }); saveData(); renderPersonnel(); }
-function clearPersonnel() { if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) { mealCostData.appData.personnel = [{ id: Date.now(), name: '', mealCost: 0, discount: { type: 'amount', value: 0, cap: 0 } }]; saveData(); renderPersonnel(); } }
-function deletePersonnel(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此人員嗎？`)) return; mealCostData.appData.personnel = mealCostData.appData.personnel.filter(p => p.id !== id); saveData(); renderPersonnel(); }
+
+/**
+ * 更新設定值並重新渲染設定區
+ * @param {string} key 設定鍵
+ * @param {any} value 設定值
+ * @returns {void}
+ */
+function updateSettings(key, value) {
+    mealCostData.appData.settings[key] = value;
+    saveData();
+    renderSettings();
+}
+
+/**
+ * 新增人員項目
+ * @returns {void}
+ */
+function addPersonnel() {
+    mealCostData.appData.personnel.push({
+        id: Date.now(),
+        name: '',
+        mealCost: 0,
+        discount: { type: 'amount', value: 0, cap: 0 }
+    });
+    saveData();
+    renderPersonnel();
+}
+
+/**
+ * 清空人員清單（含確認）
+ * @returns {void}
+ */
+function clearPersonnel() {
+    if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) {
+        mealCostData.appData.personnel = [{
+            id: Date.now(),
+            name: '',
+            mealCost: 0,
+            discount: { type: 'amount', value: 0, cap: 0 }
+        }];
+        saveData();
+        renderPersonnel();
+    }
+}
+
+/**
+ * 刪除指定人員（尊重設定中的刪除確認）
+ * @param {number} id 人員 ID
+ * @returns {void}
+ */
+function deletePersonnel(id) {
+    if (mealCostData.appData.settings.confirmDeleteItem && !confirm('確定要刪除此人員嗎？')) return;
+    mealCostData.appData.personnel = mealCostData.appData.personnel.filter(p => p.id !== id);
+    saveData();
+    renderPersonnel();
+}
+
+/**
+ * 更新人員欄位
+ * @param {number} id 人員 ID
+ * @param {string} field 欄位（可含層級，如 'discount.type'）
+ * @param {any} value 值
+ * @returns {void}
+ */
 function updatePersonnel(id, field, value) {
     const person = mealCostData.appData.personnel.find(p => p.id === id);
     if (!person) return;
-    if (field.includes('.')) { const [obj, prop] = field.split('.'); person[obj][prop] = value; } 
-    else { person[field] = value; }
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        person[obj][prop] = value;
+    } else {
+        person[field] = value;
+    }
     saveData();
 }
-function addSharedCost() { mealCostData.appData.sharedCosts.push({ id: Date.now(), name: '', cost: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' }); saveData(); renderSharedCosts(); }
-function clearSharedCosts() { if (confirm('確定要清空「均分費用區」所有項目嗎？')) { mealCostData.appData.sharedCosts = []; saveData(); renderSharedCosts(); } }
-function deleteSharedCost(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此費用嗎？`)) return; mealCostData.appData.sharedCosts = mealCostData.appData.sharedCosts.filter(sc => sc.id !== id); saveData(); renderSharedCosts(); }
+
+/**
+ * 新增均分費用
+ * @returns {void}
+ */
+function addSharedCost() {
+    mealCostData.appData.sharedCosts.push({
+        id: Date.now(),
+        name: '',
+        cost: { type: 'amount', value: 0, cap: 0 },
+        method: 'evenly'
+    });
+    saveData();
+    renderSharedCosts();
+}
+
+/**
+ * 清空均分費用（含確認）
+ * @returns {void}
+ */
+function clearSharedCosts() {
+    if (confirm('確定要清空「均分費用區」所有項目嗎？')) {
+        mealCostData.appData.sharedCosts = [];
+        saveData();
+        renderSharedCosts();
+    }
+}
+
+/**
+ * 刪除指定均分費用（尊重設定中的刪除確認）
+ * @param {number} id 費用 ID
+ * @returns {void}
+ */
+function deleteSharedCost(id) {
+    if (mealCostData.appData.settings.confirmDeleteItem && !confirm('確定要刪除此費用嗎？')) return;
+    mealCostData.appData.sharedCosts = mealCostData.appData.sharedCosts.filter(sc => sc.id !== id);
+    saveData();
+    renderSharedCosts();
+}
+
+/**
+ * 更新均分費用欄位
+ * @param {number} id 費用 ID
+ * @param {string} field 欄位（可含層級，如 'cost.type'）
+ * @param {any} value 值
+ * @returns {void}
+ */
 function updateSharedCost(id, field, value) {
     const cost = mealCostData.appData.sharedCosts.find(sc => sc.id === id);
     if (!cost) return;
-    if (field.includes('.')) { const [obj, prop] = field.split('.'); cost[obj][prop] = value; } 
-    else { cost[field] = value; }
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        cost[obj][prop] = value;
+    } else {
+        cost[field] = value;
+    }
     if (field === 'name') addCommonInfo('cost', value);
     saveData();
     if (field === 'cost.type') renderSharedCosts();
 }
-function addSharedDiscount() { mealCostData.appData.sharedDiscounts.push({ id: Date.now(), name: '', discount: { type: 'amount', value: 0, cap: 0 }, method: 'evenly' }); saveData(); renderSharedDiscounts(); }
-function clearSharedDiscounts() { if (confirm('確定要清空「共同優惠區」所有項目嗎？')) { mealCostData.appData.sharedDiscounts = []; saveData(); renderSharedDiscounts(); } }
-function deleteSharedDiscount(id) { if (mealCostData.appData.settings.confirmDeleteItem && !confirm(`確定要刪除此優惠嗎？`)) return; mealCostData.appData.sharedDiscounts = mealCostData.appData.sharedDiscounts.filter(sd => sd.id !== id); saveData(); renderSharedDiscounts(); }
+
+/**
+ * 新增共同優惠
+ * @returns {void}
+ */
+function addSharedDiscount() {
+    mealCostData.appData.sharedDiscounts.push({
+        id: Date.now(),
+        name: '',
+        discount: { type: 'amount', value: 0, cap: 0 },
+        method: 'evenly'
+    });
+    saveData();
+    renderSharedDiscounts();
+}
+
+/**
+ * 清空共同優惠（含確認）
+ * @returns {void}
+ */
+function clearSharedDiscounts() {
+    if (confirm('確定要清空「共同優惠區」所有項目嗎？')) {
+        mealCostData.appData.sharedDiscounts = [];
+        saveData();
+        renderSharedDiscounts();
+    }
+}
+
+/**
+ * 刪除指定共同優惠（尊重設定中的刪除確認）
+ * @param {number} id 優惠 ID
+ * @returns {void}
+ */
+function deleteSharedDiscount(id) {
+    if (mealCostData.appData.settings.confirmDeleteItem && !confirm('確定要刪除此優惠嗎？')) return;
+    mealCostData.appData.sharedDiscounts = mealCostData.appData.sharedDiscounts.filter(sd => sd.id !== id);
+    saveData();
+    renderSharedDiscounts();
+}
+
+/**
+ * 更新共同優惠欄位
+ * @param {number} id 優惠 ID
+ * @param {string} field 欄位（可含層級，如 'discount.type'）
+ * @param {any} value 值
+ * @returns {void}
+ */
 function updateSharedDiscount(id, field, value) {
     const discount = mealCostData.appData.sharedDiscounts.find(sd => sd.id === id);
     if (!discount) return;
-    if (field.includes('.')) { const [obj, prop] = field.split('.'); discount[obj][prop] = value; } 
-    else { discount[field] = value; }
+    if (field.includes('.')) {
+        const [obj, prop] = field.split('.');
+        discount[obj][prop] = value;
+    } else {
+        discount[field] = value;
+    }
     if (field === 'name') addCommonInfo('discount', value);
     saveData();
     if (field === 'discount.type') renderSharedDiscounts();
 }
+
+/**
+ * 進行整體計算：彙整人員、套用共同優惠與均分費用、顯示結果
+ * @returns {void}
+ */
 function calculate() {
-    const stepsLog = []; const aggregatedPersonnel = {};
+    const stepsLog = [];
+    const aggregatedPersonnel = {};
+
     mealCostData.appData.personnel.forEach(p => {
         const name = p.name.trim() || '未命名';
-        if (!aggregatedPersonnel[name]) { aggregatedPersonnel[name] = { name: name, baseMealCost: 0, finalAmount: 0 }; }
-        let cost = p.mealCost; let discountAmount = 0;
-        if (p.discount.type === 'amount') { discountAmount = p.discount.value; } 
-        else if (p.discount.type === 'percent') { discountAmount = cost * (p.discount.value / 100); if (p.discount.cap > 0 && discountAmount > p.discount.cap) discountAmount = p.discount.cap; }
+        if (!aggregatedPersonnel[name]) {
+            aggregatedPersonnel[name] = { name, baseMealCost: 0, finalAmount: 0 };
+        }
+        let cost = p.mealCost;
+        let discountAmount = 0;
+        if (p.discount.type === 'amount') {
+            discountAmount = p.discount.value;
+        } else if (p.discount.type === 'percent') {
+            discountAmount = cost * (p.discount.value / 100);
+            if (p.discount.cap > 0 && discountAmount > p.discount.cap) discountAmount = p.discount.cap;
+        }
         stepsLog.push(`人員「${name}」項目：餐費 ${cost}` + (discountAmount > 0 ? ` - 折扣 ${discountAmount} = ${Math.max(cost - discountAmount, 0)}` : ''));
         aggregatedPersonnel[name].baseMealCost += cost;
         aggregatedPersonnel[name].finalAmount += (cost - discountAmount);
     });
+
     let results = Object.values(aggregatedPersonnel);
-    if (results.length === 0) { alert('請至少新增一位人員！'); return; }
+    if (results.length === 0) {
+        alert('請至少新增一位人員！');
+        return;
+    }
+
     const totalBaseMealCost = results.reduce((sum, p) => sum + p.baseMealCost, 0);
     stepsLog.push(`餐費小計(折扣後)：` + results.map(r => `${r.name}:${(r.finalAmount).toFixed(2)}`).join('，'));
+
     mealCostData.appData.calculationOrder.forEach(step => {
         if (step === 'sharedDiscounts') {
             let currentTotalBeforeDiscount = results.reduce((sum, r) => sum + r.finalAmount, 0);
@@ -1162,42 +1485,114 @@ function calculate() {
             processSharedCosts(results, totalBaseMealCost, stepsLog);
         }
     });
+
     displayResults(results, stepsLog);
 }
+
+/**
+ * 套用共同優惠（支持金額/比例，上限與平均/比例分攤）
+ * @param {Array} results 人員結果陣列（含 baseMealCost、finalAmount）
+ * @param {number} totalBaseMealCost 餐費基礎總額（未含共同內容）
+ * @param {number} currentTotal 目前折扣前總額（用於比例折扣）
+ * @param {string[]} stepsLog 步驟紀錄
+ * @returns {void}
+ */
 function processSharedDiscounts(results, totalBaseMealCost, currentTotal, stepsLog) {
     mealCostData.appData.sharedDiscounts.forEach(sd => {
         let totalDiscountValue = 0;
-        if (sd.discount.type === 'amount') { totalDiscountValue = sd.discount.value; } 
-        else { totalDiscountValue = currentTotal * (sd.discount.value / 100); if (sd.discount.cap > 0 && totalDiscountValue > sd.discount.cap) totalDiscountValue = sd.discount.cap; }
+        if (sd.discount.type === 'amount') {
+            totalDiscountValue = sd.discount.value;
+        } else {
+            totalDiscountValue = currentTotal * (sd.discount.value / 100);
+            if (sd.discount.cap > 0 && totalDiscountValue > sd.discount.cap) totalDiscountValue = sd.discount.cap;
+        }
         stepsLog.push(`- ${sd.name || '未命名優惠'}... 合計折扣 ${totalDiscountValue.toFixed(2)}`);
-        if (sd.method === 'evenly') { if (results.length > 0) { const discountPerPerson = totalDiscountValue / results.length; results.forEach(r => r.finalAmount -= discountPerPerson); stepsLog.push(`  平均攤分，每人 -${discountPerPerson.toFixed(2)}`); } } 
-        else { if (totalBaseMealCost > 0) { results.forEach(r => { const proportion = r.baseMealCost / totalBaseMealCost; const d = (totalDiscountValue * proportion); r.finalAmount -= d; stepsLog.push(`  ${r.name} 按比例 -${d.toFixed(2)}`); }); } }
+
+        if (sd.method === 'evenly') {
+            if (results.length > 0) {
+                const discountPerPerson = totalDiscountValue / results.length;
+                results.forEach(r => r.finalAmount -= discountPerPerson);
+                stepsLog.push(`  平均攤分，每人 -${discountPerPerson.toFixed(2)}`);
+            }
+        } else {
+            if (totalBaseMealCost > 0) {
+                results.forEach(r => {
+                    const proportion = r.baseMealCost / totalBaseMealCost;
+                    const d = totalDiscountValue * proportion;
+                    r.finalAmount -= d;
+                    stepsLog.push(`  ${r.name} 按比例 -${d.toFixed(2)}`);
+                });
+            }
+        }
         currentTotal = results.reduce((sum, r) => sum + r.finalAmount, 0);
     });
 }
+
+/**
+ * 套用均分費用（支持金額/比例，上限與平均/比例分攤）
+ * @param {Array} results 人員結果陣列（含 baseMealCost、finalAmount）
+ * @param {number} totalBaseMealCost 餐費基礎總額（用於比例計算）
+ * @param {string[]} stepsLog 步驟紀錄
+ * @returns {void}
+ */
 function processSharedCosts(results, totalBaseMealCost, stepsLog) {
     mealCostData.appData.sharedCosts.forEach(sc => {
         let totalCostValue = 0;
-        if (sc.cost.type === 'amount') { totalCostValue = sc.cost.value; } 
-        else { totalCostValue = totalBaseMealCost * (sc.cost.value / 100); if (sc.cost.cap > 0 && totalCostValue > sc.cost.cap) totalCostValue = sc.cost.cap; }
+        if (sc.cost.type === 'amount') {
+            totalCostValue = sc.cost.value;
+        } else {
+            totalCostValue = totalBaseMealCost * (sc.cost.value / 100);
+            if (sc.cost.cap > 0 && totalCostValue > sc.cost.cap) totalCostValue = sc.cost.cap;
+        }
         stepsLog.push(`- ${sc.name || '未命名費用'}... 合計費用 ${totalCostValue.toFixed(2)}`);
-        if (sc.method === 'evenly') { if (results.length > 0) { const costPerPerson = totalCostValue / results.length; results.forEach(r => r.finalAmount += costPerPerson); stepsLog.push(`  平均攤分，每人 +${costPerPerson.toFixed(2)}`); } } 
-        else { if (totalBaseMealCost > 0) { results.forEach(r => { const proportion = r.baseMealCost / totalBaseMealCost; const c = (totalCostValue * proportion); r.finalAmount += c; stepsLog.push(`  ${r.name} 按比例 +${c.toFixed(2)}`); }); } }
+
+        if (sc.method === 'evenly') {
+            if (results.length > 0) {
+                const costPerPerson = totalCostValue / results.length;
+                results.forEach(r => r.finalAmount += costPerPerson);
+                stepsLog.push(`  平均攤分，每人 +${costPerPerson.toFixed(2)}`);
+            }
+        } else {
+            if (totalBaseMealCost > 0) {
+                results.forEach(r => {
+                    const proportion = r.baseMealCost / totalBaseMealCost;
+                    const c = totalCostValue * proportion;
+                    r.finalAmount += c;
+                    stepsLog.push(`  ${r.name} 按比例 +${c.toFixed(2)}`);
+                });
+            }
+        }
     });
 }
+
+/**
+ * 以設定的進位方式與小數位數顯示結果，並可選擇顯示計算步驟
+ * @param {Array} results 計算後的人員清單（含 finalAmount）
+ * @param {string[]} [stepsLog=[]] 步驟紀錄
+ * @returns {void}
+ */
 function displayResults(results, stepsLog = []) {
     const detailsDiv = document.getElementById('result-details');
     const grandTotalP = document.getElementById('grand-total');
     const stepsUl = document.getElementById('calc-steps');
     const { decimalPlaces, roundingMethod } = mealCostData.appData.settings;
     const multiplier = 10 ** decimalPlaces;
+
     function roundValue(val) {
         if (roundingMethod === 'ceil') return Math.ceil(val * multiplier) / multiplier;
         if (roundingMethod === 'floor') return Math.floor(val * multiplier) / multiplier;
         return Math.round(val * multiplier) / multiplier;
     }
+
     stepsUl.innerHTML = '';
-    if (mealCostData.appData.settings.showSteps && stepsLog.length) { stepsLog.forEach(t => { const li = document.createElement('li'); li.textContent = t; stepsUl.appendChild(li); }); }
+    if (mealCostData.appData.settings.showSteps && stepsLog.length) {
+        stepsLog.forEach(t => {
+            const li = document.createElement('li');
+            li.textContent = t;
+            stepsUl.appendChild(li);
+        });
+    }
+
     detailsDiv.innerHTML = '';
     let grandTotal = 0;
     results.forEach(r => {
@@ -1209,25 +1604,68 @@ function displayResults(results, stepsLog = []) {
     });
     grandTotalP.textContent = `收款總計: $ ${grandTotal.toFixed(decimalPlaces)}`;
 }
-function addCommonInfo(type, name) { name = (name || '').trim(); if (!name) return; if (!mealCostData.commonInfo[type].includes(name)) { mealCostData.commonInfo[type].push(name); saveData(); } }
+
+/**
+ * 新增常用詞至對應清單（若不存在）
+ * @param {'person'|'cost'|'discount'} type 類型
+ * @param {string} name 文字
+ * @returns {void}
+ */
+function addCommonInfo(type, name) {
+    name = (name || '').trim();
+    if (!name) return;
+    if (!mealCostData.commonInfo[type].includes(name)) {
+        mealCostData.commonInfo[type].push(name);
+        saveData();
+    }
+}
+
+/**
+ * 刪除常用清單項目（尊重設定中的刪除確認）
+ * @param {'person'|'cost'|'discount'} type 類型
+ * @param {number} idx 索引
+ * @param {Function} [callback] 刪除後回呼（用於刷新 UI）
+ * @returns {void}
+ */
 function deleteCommonInfoItem(type, idx, callback) {
-    if (mealCostData.appData.settings.confirmDeleteOption) { if (!confirm(`確定要刪除常用項目「${mealCostData.commonInfo[type][idx]}」嗎？`)) return; }
+    if (mealCostData.appData.settings.confirmDeleteOption) {
+        if (!confirm(`確定要刪除常用項目「${mealCostData.commonInfo[type][idx]}」嗎？`)) return;
+    }
     mealCostData.commonInfo[type].splice(idx, 1);
     saveData();
     if (callback) callback();
 }
+
+/**
+ * 從現有 appData 同步常用詞（避免遺漏手動輸入過的名稱）
+ * @returns {void}
+ */
 function syncCommonInfoFromAppData() {
     mealCostData.appData.personnel.forEach(p => addCommonInfo('person', p.name));
     mealCostData.appData.sharedCosts.forEach(sc => addCommonInfo('cost', sc.name));
     mealCostData.appData.sharedDiscounts.forEach(sd => addCommonInfo('discount', sd.name));
 }
 
-// ===== 初始化 (已更新以使用 mealCostData) =====
+
+/**
+ * 初始化：綁定事件、設定拖曳、同步常用詞並渲染
+ * @returns {void}
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    // 檢查 emoji 支援
-    function supportsEmoji(char) { const span = document.createElement('span'); span.textContent = char; return span.textContent === char && span.innerText === char; }
-    if (!supportsEmoji('🗑️')) { document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none'); document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline'); }
-    if (!supportsEmoji('🧹')) { document.querySelectorAll('.clear-icon').forEach(e => e.style.display = 'none'); document.querySelectorAll('.clear-fallback').forEach(e => e.style.display = 'inline'); }
+    // Emoji 支援檢測（不支援時以文字替代圖示）
+    function supportsEmoji(char) {
+        const span = document.createElement('span');
+        span.textContent = char;
+        return span.textContent === char && span.innerText === char;
+    }
+    if (!supportsEmoji('🗑️')) {
+        document.querySelectorAll('.delete-icon').forEach(e => e.style.display = 'none');
+        document.querySelectorAll('.delete-fallback').forEach(e => e.style.display = 'inline');
+    }
+    if (!supportsEmoji('🧹')) {
+        document.querySelectorAll('.clear-icon').forEach(e => e.style.display = 'none');
+        document.querySelectorAll('.clear-fallback').forEach(e => e.style.display = 'inline');
+    }
 
     // Modal 事件綁定
     const modal = document.getElementById('common-info-modal');
@@ -1235,10 +1673,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#common-info-modal .close-modal').onclick = () => modal.style.display = 'none';
     window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; };
     
-    // 從現有資料同步常用詞
+    // 同步常用詞
     syncCommonInfoFromAppData();
 
-    // 一次性設定好所有拖曳功能
+    // 設定拖曳功能
     setupDrag('#personnel-list', mealCostData.appData.personnel);
     setupDrag('#shared-costs-list', mealCostData.appData.sharedCosts);
     setupDrag('#shared-discounts-list', mealCostData.appData.sharedDiscounts);
