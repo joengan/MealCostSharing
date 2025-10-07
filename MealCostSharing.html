@@ -417,7 +417,7 @@
     <h1>餐費計算機</h1>
 
     <div class="section">
-        <h2>1. 參與者/用餐人士 (同名人員項目會自動合併計算)
+        <h2>1. 人員區 (同名人員會自動合併計算)
             <button class="clear-btn" title="清空此區" onclick="clearPersonnel()">
                 <span class="clear-icon" aria-label="清空" role="img">🧹</span>
                 <span class="clear-fallback" style="display:none;">清空</span>
@@ -1335,7 +1335,7 @@ function addPersonnel() {
  * @returns {void}
  */
 function clearPersonnel() {
-    if (confirm('確定要清空「參與者/用餐人士」所有項目嗎？')) {
+    if (confirm('確定要清空「人員區」所有項目嗎？')) {
         mealCostData.appData.personnel = [{
             id: Date.now(),
             name: '',
