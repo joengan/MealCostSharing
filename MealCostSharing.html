@@ -301,10 +301,6 @@
             margin-bottom: 10px;
         }
 
-        .install-area {
-            display: inline;
-        }
-
         /* 暗黑模式 */
         @media (prefers-color-scheme: dark) {
             body { background-color: #121212; color: #e6e6e6; }
@@ -494,10 +490,6 @@
       <div class="modal-content">
         <span class="close-modal" title="關閉">&times;</span>
         <h2>偏好設定</h2>
-        <!-- 新增：PWA 安裝按鈕區塊 -->
-        <div id="pwa-install-area" class="install-area" style="display:none;">
-          <button id="pwa-install-btn" class="add-btn" style="width:auto;">安裝本應用程式</button>
-        </div>
         <div class="common-list-block">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
                 <span style="font-weight:bold;">刪除「項目」時確認</span>
@@ -507,11 +499,18 @@
                 </label>
                 <small>刪除「人員、均分費用、共同優惠」項目時，跳出確認提示。</small>
             </div>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom: 12px;">
                 <span style="font-weight:bold;">刪除「常用選項」時確認</span>
                 <label class="switch">
                     <input type="checkbox" id="confirm-delete-option-toggle" onchange="updateSettings('confirmDeleteOption', this.checked)">
                     <span class="slider"></span>
+                </label>
+                <small>從輸入建議選單中刪除常用名稱時，跳出確認提示。</small>
+            </div>
+            <div id="pwa-install-area" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="font-weight:bold;">應用程式</span>
+                <label class="switch">
+                    <button id="pwa-install-btn" class="add-btn" style="width:auto;">安裝</button>
                 </label>
                 <small>從輸入建議選單中刪除常用名稱時，跳出確認提示。</small>
             </div>
