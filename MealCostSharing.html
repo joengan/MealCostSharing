@@ -513,6 +513,11 @@
 </div>
 
 <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+<script>
 /**
  * 餐費計算機
  * - 管理人員、均分費用、共同優惠，並依自訂順序進行計算。
