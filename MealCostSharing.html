@@ -301,6 +301,10 @@
             margin-bottom: 10px;
         }
 
+        .install-area {
+            display: inline;
+        }
+
         /* 暗黑模式 */
         @media (prefers-color-scheme: dark) {
             body { background-color: #121212; color: #e6e6e6; }
@@ -491,7 +495,7 @@
         <span class="close-modal" title="關閉">&times;</span>
         <h2>偏好設定</h2>
         <!-- 新增：PWA 安裝按鈕區塊 -->
-        <div id="pwa-install-area" style="margin-bottom:18px; display:none;">
+        <div id="pwa-install-area" class="install-area" style="display:none;">
           <button id="pwa-install-btn" class="add-btn" style="width:auto;">安裝本應用程式</button>
         </div>
         <div class="common-list-block">
