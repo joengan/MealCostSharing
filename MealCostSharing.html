@@ -526,21 +526,18 @@ if ('serviceWorker' in navigator) {
 // PWA 安裝提示按鈕邏輯
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
-  // 不阻止預設行為
   deferredPrompt = e;
-  // 僅在設定畫面顯示安裝按鈕
+  // 顯示安裝按鈕
   const installArea = document.getElementById('pwa-install-area');
   if (installArea) installArea.style.display = '';
 });
 
-// 點擊安裝按鈕時觸發安裝流程
 document.addEventListener('DOMContentLoaded', () => {
   const installBtn = document.getElementById('pwa-install-btn');
   if (installBtn) {
     installBtn.onclick = async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        // 等待用戶回應
         await deferredPrompt.userChoice;
         deferredPrompt = null;
         // 隱藏安裝按鈕
@@ -549,22 +546,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // 檢查是否支援 PWA 安裝
+  // 修正：只根據 deferredPrompt 是否存在來顯示/隱藏
   function checkPWAInstallable() {
-    // 已安裝或不支援時隱藏
     const installArea = document.getElementById('pwa-install-area');
-    if (!window.matchMedia('(display-mode: browser)').matches) {
-      // 已安裝或在獨立模式
+    if (deferredPrompt) {
+      if (installArea) installArea.style.display = '';
+    } else {
       if (installArea) installArea.style.display = 'none';
-      return;
     }
-    // 若 beforeinstallprompt 尚未觸發，也隱藏
-    if (!deferredPrompt && installArea) installArea.style.display = 'none';
   }
 
   // 初始檢查
   checkPWAInstallable();
-  // 進入設定畫面時再檢查
   document.getElementById('settings-btn').onclick = () => {
     document.getElementById('common-info-modal').style.display = 'flex';
     checkPWAInstallable();
@@ -1743,7 +1736,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 設定拖曳功能
     setupDrag('#personnel-list', mealCostData.appData.personnel);
-    setupDrag('#shared-costs-list', mealCostData.appData.sharedCosts);
+    setupDrag('#shared-costs-list', mealCostData.appAppData.sharedCosts);
     setupDrag('#shared-discounts-list', mealCostData.appData.sharedDiscounts);
     setupOrderDragAndDrop();
 
