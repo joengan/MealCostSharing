@@ -945,17 +945,18 @@ class CustomAutocomplete {
             });
             itemDiv.appendChild(deleteBtn);
 
-            itemDiv.addEventListener('mousedown', (e) => {
+            const handleDragStart = (e, clientX, clientY) => {
                 if (e.target === deleteBtn) return;
                 e.preventDefault();
+                e.stopPropagation(); // 阻止事件冒泡，避免觸發底層元素的拖曳
 
                 this.isDragging = false;
                 this.draggedItem = itemDiv;
                 this.dragStartIndex = mealCostData.commonInfo[this.type].indexOf(item);
 
                 const rect = this.draggedItem.getBoundingClientRect();
-                this.dragOffsetX = e.clientX - rect.left;
-                this.dragOffsetY = e.clientY - rect.top;
+                this.dragOffsetX = clientX - rect.left;
+                this.dragOffsetY = clientY - rect.top;
 
                 this.clickTimeout = setTimeout(() => {
                     this.isDragging = true;
@@ -966,27 +967,28 @@ class CustomAutocomplete {
                     this.ghostElement.classList.remove('dragging');
                     this.ghostElement.style.position = 'fixed';
                     this.ghostElement.style.zIndex = '2000';
-                    this.ghostElement.style.pointerEvents = 'none'; // 讓滑鼠事件穿透
+                    this.ghostElement.style.pointerEvents = 'none';
                     this.ghostElement.style.opacity = '0.7';
                     this.ghostElement.style.width = `${this.draggedItem.offsetWidth}px`;
                     document.body.appendChild(this.ghostElement);
-                    // 根據初始滑鼠位置設定預覽元素位置
-                    this.ghostElement.style.left = `${e.clientX - this.dragOffsetX}px`;
-                    this.ghostElement.style.top = `${e.clientY - this.dragOffsetY}px`;
+                    
+                    this.ghostElement.style.left = `${clientX - this.dragOffsetX}px`;
+                    this.ghostElement.style.top = `${clientY - this.dragOffsetY}px`;
 
                     this.placeholder = document.createElement('div');
                     this.placeholder.className = 'suggestion-item placeholder';
-                    const rect = this.draggedItem.getBoundingClientRect();
-                    this.placeholder.style.height = `${rect.height}px`;
+                    const placeholderRect = this.draggedItem.getBoundingClientRect();
+                    this.placeholder.style.height = `${placeholderRect.height}px`;
                 }, 200);
 
                 const onMouseMove = (moveE) => {
+                    const moveClientX = moveE.touches ? moveE.touches[0].clientX : moveE.clientX;
+                    const moveClientY = moveE.touches ? moveE.touches[0].clientY : moveE.clientY;
                     if (this.isDragging) {
                         this.handleDrag(moveE);
-                        // 3. 移動預覽元素
                         if (this.ghostElement) {
-                            this.ghostElement.style.left = `${moveE.clientX - this.dragOffsetX}px`;
-                            this.ghostElement.style.top = `${moveE.clientY - this.dragOffsetY}px`;
+                            this.ghostElement.style.left = `${moveClientX - this.dragOffsetX}px`;
+                            this.ghostElement.style.top = `${moveClientY - this.dragOffsetY}px`;
                         }
                     }
                 };
@@ -1013,11 +1015,24 @@ class CustomAutocomplete {
                     }
                     document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', onMouseUp);
+                    document.removeEventListener('touchmove', onMouseMove);
+                    document.removeEventListener('touchend', onMouseUp);
                 };
                 
                 document.addEventListener('mousemove', onMouseMove);
                 document.addEventListener('mouseup', onMouseUp);
+                document.addEventListener('touchmove', onMouseMove, { passive: false });
+                document.addEventListener('touchend', onMouseUp);
+            };
+
+            itemDiv.addEventListener('mousedown', (e) => {
+                handleDragStart(e, e.clientX, e.clientY);
             });
+
+            itemDiv.addEventListener('touchstart', (e) => {
+                handleDragStart(e, e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
+
             this.suggestionsContainer.appendChild(itemDiv);
         });
     }
@@ -1028,7 +1043,9 @@ class CustomAutocomplete {
      */
     handleDrag(e) {
         if (!this.draggedItem || !this.placeholder) return;
-        const afterElement = this.getDragAfterElement(this.suggestionsContainer, e.clientY);
+        //const moveClientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const moveClientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const afterElement = this.getDragAfterElement(this.suggestionsContainer, moveClientY);
         if (afterElement == null) this.suggestionsContainer.appendChild(this.placeholder);
         else this.suggestionsContainer.insertBefore(this.placeholder, afterElement);
     }
