@@ -319,6 +319,14 @@
             .section { color: inherit; }
             .item-row { background-color: #22252a; border: 1px solid #3a3f45; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 6px rgba(0,0,0,0.35); }
             .item-row.dragging { opacity: 0.5; background: #3a3f45; }
+
+            .item-row.placeholder,
+            .order-block.placeholder,
+            .suggestion-item.placeholder {
+                background: #2a2e35 !important;
+                border-color: #555 !important;
+            }
+
             .item-row input, .item-row select { background-color: #2a2e35; color: #e6e6e6; border-color: #4b515a; }
             .item-row input::placeholder { color: #9aa0a6; }
             .item-row:focus-within { outline: 2px solid rgba(97, 218, 251, 0.3); outline-offset: 1px; }
