@@ -48,9 +48,18 @@
             border-radius: 5px;
             flex-wrap: wrap;
         }
-        .item-row.dragging {
-            opacity: 0.5;
-            background: #cce5ff;
+        .item-row.dragging,
+        .order-block.dragging,
+        .suggestion-item.dragging {
+            display: none !important;
+        }
+        .item-row.placeholder,
+        .order-block.placeholder,
+        .suggestion-item.placeholder {
+            background: #f0f0f0 !important;
+            border: 2px dashed #aaa !important;
+            opacity: 1 !important;
+            min-height: 36px;
         }
         .item-row input, .item-row select {
             padding: 8px;
