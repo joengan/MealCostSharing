@@ -13,7 +13,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <style>
-        :root { color-scheme: light dark; }
+        :root {
+            color-scheme: light dark;
+        }
+
+        /* 基本佈局與字體 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
@@ -23,21 +27,27 @@
             max-width: 1080px;
             margin: 0 auto;
         }
+
         .container {
             position: relative;
             background: #fff;
             padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             border-bottom: 2px solid #4CAF50;
             padding-bottom: 10px;
             color: #333;
         }
+
         .section {
             margin-bottom: 30px;
         }
+
+        /* 元件樣式 (Item, Button, Input, Modal...) */
         .item-row {
             display: flex;
             align-items: center;
@@ -48,31 +58,62 @@
             border-radius: 5px;
             flex-wrap: wrap;
         }
-        .item-row.dragging,
-        .order-block.dragging,
-        .suggestion-item.dragging {
-            display: none !important;
-        }
-        .item-row.placeholder,
-        .order-block.placeholder,
-        .suggestion-item.placeholder {
-            background: #f0f0f0 !important;
-            border: 2px dashed #aaa !important;
-            opacity: 1 !important;
-            min-height: 36px;
-        }
-        .item-row input, .item-row select {
+
+        .item-row input,
+        .item-row select {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        .item-row input[type="text"] { flex-grow: 1; min-width: 100px; }
-        .item-row input[type="number"] { width: 100px; }
-        .discount-logic, .cost-logic {
+
+        .item-row input[type="text"] {
+            flex-grow: 1;
+            min-width: 100px;
+        }
+
+        .item-row input[type="number"] {
+            width: 100px;
+        }
+
+        .discount-logic,
+        .cost-logic {
             display: flex;
             align-items: center;
             gap: 5px;
         }
+
+        .add-btn,
+        .calc-btn,
+        .temp-save-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover,
+        .calc-btn:hover,
+        .temp-save-btn:hover {
+            background-color: #45a049;
+        }
+
+        .calc-btn {
+            width: 100%;
+        }
+
+        .temp-save-btn {
+            background-color: #008CBA;
+            margin-left: 10px;
+        }
+
+        .temp-save-btn:hover {
+            background-color: #007ba7;
+        }
+
         .delete-btn {
             background-color: transparent;
             color: #d32f2f;
@@ -86,11 +127,16 @@
             gap: 4px;
             transition: background 0.2s;
         }
-        .delete-btn:hover { background-color: #ffeaea; }
+
+        .delete-btn:hover {
+            background-color: #ffeaea;
+        }
+
         .delete-icon {
             font-size: 18px;
             line-height: 1;
         }
+
         .delete-fallback {
             font-size: 14px;
             color: white;
@@ -98,16 +144,7 @@
             padding: 2px 8px;
             border-radius: 4px;
         }
-        .add-btn, .calc-btn, .temp-save-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
+
         .clear-btn {
             background: transparent;
             border: none;
@@ -119,15 +156,12 @@
             border-radius: 6px;
             vertical-align: middle;
         }
-        .clear-btn:hover { background: #f0f0f0; }
-        .calc-btn { width: 100%; }
-        .add-btn:hover, .calc-btn:hover, .temp-save-btn:hover { background-color: #45a049; }
-        .temp-save-btn {
-            background-color: #008CBA;
-            margin-left: 10px;
+
+        .clear-btn:hover {
+            background: #f0f0f0;
         }
-        .temp-save-btn:hover { background-color: #007ba7; }
-        
+
+        /* 計算順序 */
         #calculation-order-container {
             display: flex;
             gap: 15px;
@@ -138,6 +172,7 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
+
         .order-block {
             padding: 15px 25px;
             background-color: #e0e0e0;
@@ -148,8 +183,8 @@
             border: 2px solid #ccc;
             flex: 0 0 auto;
         }
-        .order-block.dragging { opacity: 0.5; background: #b0b0b0; }
-        
+
+        /* 結果與設定 */
         #results {
             margin-top: 20px;
             padding: 15px;
@@ -157,46 +192,106 @@
             border-left: 5px solid #4CAF50;
             border-radius: 5px;
         }
-        #results h3 { margin-top: 0; }
-        #results p { margin: 5px 0; font-size: 1.1em; }
+
+        #results h3 {
+            margin-top: 0;
+        }
+
+        #results p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
         #results #grand-total {
             font-weight: bold;
             font-size: 1.3em;
             color: #d32f2f;
             margin-top: 15px;
         }
-        .save-feedback {
-            color: #4CAF50;
-            font-style: italic;
-            margin-left: 15px;
-            display: none;
+
+        .steps {
+            margin: 6px 0 10px 0;
+            padding-left: 16px;
+            color: #2f4f4f;
         }
-        .settings-area { margin-bottom: 15px; }
-        .settings-area label { font-weight: bold; }
-        .settings-area input { width: 60px; }
 
-        /* 開關切換樣式 */
-        .switch { position: relative; display: inline-block; width: 60px; height: 34px; vertical-align: middle; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-        .switch input:checked + .slider { background-color: #2196F3; }
-        .switch input:checked + .slider:before { transform: translateX(26px); }
+        .steps li {
+            margin: 2px 0;
+        }
 
-        /* 計算步驟樣式 */
-        .steps { margin: 6px 0 10px 0; padding-left: 16px; color: #2f4f4f; }
-        .steps li { margin: 2px 0; }
-        
-        /* Modal */
+        .settings-area {
+            margin-bottom: 15px;
+        }
+
+        .settings-area label {
+            font-weight: bold;
+        }
+
+        .settings-area input {
+            width: 60px;
+        }
+
+        /* 開關切換 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            vertical-align: middle;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        .switch input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        .switch input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Modal 彈出視窗 */
         .modal {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.2);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
+
         .modal-content {
             background: #fff;
             padding: 30px 30px 20px 30px;
@@ -205,9 +300,10 @@
             max-width: 90vw;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
             position: relative;
         }
+
         .close-modal {
             position: absolute;
             top: 12px;
@@ -215,29 +311,7 @@
             font-size: 28px;
             cursor: pointer;
         }
-        .common-list-block { margin-bottom: 18px; }
-        .common-list { list-style: none; padding: 0; margin: 0; }
-        .common-list li {
-            background: #f7f7f7;
-            margin-bottom: 6px;
-            padding: 8px 12px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: grab;
-            justify-content: space-between;
-        }
-        .common-list li.dragging { opacity: 0.5; background: #e0e0e0; }
-        .common-list .delete-btn {
-            background: none;
-            color: #d32f2f;
-            font-size: 18px;
-            border: none;
-            cursor: pointer;
-            padding: 0 6px;
-        }
-        
+
         #settings-btn {
             position: absolute;
             top: 25px;
@@ -247,12 +321,13 @@
             z-index: 20;
         }
 
-        /* 自訂自動完成選單 */
+        /* 自動完成與常用清單 */
         .autocomplete-container {
             position: relative;
             width: 100%;
             display: inline;
         }
+
         .autocomplete-suggestions {
             position: absolute;
             top: 100%;
@@ -261,12 +336,13 @@
             background-color: #fff;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             z-index: 100;
             max-height: 200px;
             overflow-y: auto;
             margin-top: 10px;
         }
+
         .suggestion-item {
             padding: 8px 12px;
             cursor: pointer;
@@ -275,156 +351,321 @@
             align-items: center;
             user-select: none;
         }
-        .suggestion-item:hover, .suggestion-item.active {
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
             background-color: #f0f0f0;
         }
-        .suggestion-item.dragging {
-            opacity: 0.5;
-            background-color: #d0d0d0;
-        }
+
         .suggestion-delete-btn {
             background: transparent;
             border: none;
             color: #d32f2f;
             font-size: 18px;
             cursor: pointer;
-            padding: 3px 3px;
+            padding: 3px;
             margin-left: 8px;
             border-radius: 4px;
             outline: 1.5px solid transparent;
-            transition: outline-color 0.2s;
+            transition: outline-color 0.2s, transform 0.2s;
         }
+
         .suggestion-delete-btn:hover {
             outline-color: #A292B5;
             transform: scale(1.1);
         }
 
-        /* 拖曳預覽區塊 */
+        /* 3. 拖曳狀態 (Dragging, Placeholder) */
+        .item-row.dragging,
+        .order-block.dragging,
+        .suggestion-item.dragging {
+            display: none;
+        }
+
+        .order-block.dragging {
+            opacity: 0.5;
+            background: #b0b0b0;
+        }
+
+        .suggestion-item.dragging {
+            opacity: 0.5;
+            background-color: #d0d0d0;
+        }
+
         .placeholder {
             background: #f0f0f0;
             border: 2px dashed #aaa;
             border-radius: 5px;
             box-sizing: border-box;
+            min-height: 36px;
         }
+
         .item-row.placeholder {
             margin-bottom: 10px;
         }
 
         /* 暗黑模式 */
         @media (prefers-color-scheme: dark) {
-            body { background-color: #121212; color: #e6e6e6; }
-            .container { background: #1b1c1f; box-shadow: 0 6px 20px rgba(0,0,0,0.7); }
-            h1, h2 { color: #f0f0f0; border-bottom-color: #5aa95e; }
-
-            .section { color: inherit; }
-            .item-row { background-color: #22252a; border: 1px solid #3a3f45; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 6px rgba(0,0,0,0.35); }
-            .item-row.dragging { opacity: 0.5; background: #3a3f45; }
-
-            .item-row.placeholder,
-            .order-block.placeholder,
-            .suggestion-item.placeholder {
-                background: #2a2e35 !important;
-                border-color: #555 !important;
+            body {
+                background-color: #121212;
+                color: #e6e6e6;
             }
 
-            .item-row input, .item-row select { background-color: #2a2e35; color: #e6e6e6; border-color: #4b515a; }
-            .item-row input::placeholder { color: #9aa0a6; }
-            .item-row:focus-within { outline: 2px solid rgba(97, 218, 251, 0.3); outline-offset: 1px; }
+            .container {
+                background: #1b1c1f;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+            }
 
-            .delete-btn { color: #ff6b6b; }
-            .delete-btn:hover { background-color: rgba(255, 77, 77, 0.12); }
+            h1,
+            h2 {
+                color: #f0f0f0;
+                border-bottom-color: #5aa95e;
+            }
 
-            #calculation-order-container { border-color: #555; background: #191b1d; }
-            .order-block { background-color: #2a2e35; border: 2px solid #464c55; color: #e6e6e6; box-shadow: 0 1px 8px rgba(0,0,0,0.35); }
-            .order-block.dragging { opacity: 0.8; background: #343a42; }
+            .item-row {
+                background-color: #22252a;
+                border: 1px solid #3a3f45;
+                box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 6px rgba(0, 0, 0, 0.35);
+            }
 
-            #results { background-color: #162217; border-left: 5px solid #5aa95e; box-shadow: 0 1px 8px rgba(0,0,0,0.35) inset; }
-            #results h3 { color: #e6e6e6; }
-            #results p { color: #e6e6e6; }
-            #results #grand-total { color: #ff9a8f; }
+            .item-row input,
+            .item-row select {
+                background-color: #2a2e35;
+                color: #e6e6e6;
+                border-color: #4b515a;
+            }
 
-            .steps { color: #c0d0d0; }
+            .item-row input::placeholder {
+                color: #9aa0a6;
+            }
 
-            .modal { background: rgba(0,0,0,0.55); }
-            .modal-content { background: #1e2024; color: #e6e6e6; box-shadow: 0 10px 32px rgba(0,0,0,0.75); }
-            .close-modal { color: #e6e6e6; }
+            .item-row:focus-within {
+                outline: 2px solid rgba(97, 218, 251, 0.3);
+                outline-offset: 1px;
+            }
 
-            .common-list li { background: #23272d; border: 1px solid #3a3f45; }
-            .common-list li.dragging { background: #2f343b; }
-            .common-list .delete-btn { color: #ff6b6b; }
+            .delete-btn {
+                color: #ff6b6b;
+            }
 
-            .switch .slider { background-color: #555; }
-            .switch input:checked + .slider { background-color: #1b82d1; }
+            .delete-btn:hover {
+                background-color: rgba(255, 77, 77, 0.12);
+            }
 
-            .add-btn, .calc-btn { background-color: #3c8f43; color: #fff; }
-            .add-btn:hover, .calc-btn:hover { background-color: #377f3d; }
-            .temp-save-btn { background-color: #1b82d1; }
-            .temp-save-btn:hover { background-color: #176faf; }
+            .clear-btn {
+                color: #c9c9c9;
+            }
 
-            #settings-btn { color: #e6e6e6; }
+            .clear-btn:hover {
+                background: #2a2e35;
+            }
 
-            .clear-btn { color: #c9c9c9; border-color: #555; }
-            .clear-btn:hover { background: #2a2e35; }
-            
+            .add-btn,
+            .calc-btn {
+                background-color: #3c8f43;
+            }
+
+            .add-btn:hover,
+            .calc-btn:hover {
+                background-color: #377f3d;
+            }
+
+            .temp-save-btn {
+                background-color: #1b82d1;
+            }
+
+            .temp-save-btn:hover {
+                background-color: #176faf;
+            }
+
+            #calculation-order-container {
+                border-color: #555;
+                background: #191b1d;
+            }
+
+            .order-block {
+                background-color: #2a2e35;
+                border: 2px solid #464c55;
+                color: #e6e6e6;
+                box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+            }
+
+            #results {
+                background-color: #162217;
+                border-left-color: #5aa95e;
+                box-shadow: 0 1px 8px rgba(0, 0, 0, 0.35) inset;
+            }
+
+            #results #grand-total {
+                color: #ff9a8f;
+            }
+
+            .steps {
+                color: #c0d0d0;
+            }
+
+            .modal {
+                background: rgba(0, 0, 0, 0.55);
+            }
+
+            .modal-content {
+                background: #1e2024;
+                box-shadow: 0 10px 32px rgba(0, 0, 0, 0.75);
+            }
+
+            .close-modal,
+            #settings-btn {
+                color: #e6e6e6;
+            }
+
+            .switch .slider {
+                background-color: #555;
+            }
+
+            .switch input:checked+.slider {
+                background-color: #1b82d1;
+            }
+
             .autocomplete-suggestions {
                 background-color: #2a2e35;
                 border-color: #4b515a;
-                box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
             }
-            .suggestion-item:hover, .suggestion-item.active {
+
+            .suggestion-item:hover,
+            .suggestion-item.active {
                 background-color: #343a42;
             }
-            .suggestion-item.dragging {
-                background-color: #4b515a;
-            }
+
             .suggestion-delete-btn {
                 color: #ff6b6b;
             }
+
             .suggestion-delete-btn:hover {
                 background-color: rgba(255, 107, 107, 0.25);
-                transform: scale(1.1);
             }
+
+            /* Dark mode 拖曳狀態 */
+            .item-row.dragging {
+                background: #3a3f45;
+            }
+
+            .order-block.dragging {
+                opacity: 0.8;
+                background: #343a42;
+            }
+
+            .suggestion-item.dragging {
+                background-color: #4b515a;
+            }
+
             .placeholder {
                 background: #2a2e35;
                 border-color: #555;
             }
         }
 
+        /* RWD 響應式設計 */
         /* 手機/小平板優化 */
         @media (max-width: 768px) {
-            body { padding: 12px; }
-            .container { padding: 16px; }
-            h1 { font-size: 1.4rem; }
-            h2 { font-size: 1.1rem; }
+            body {
+                padding: 12px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
 
-            .item-row { flex-direction: column; align-items: stretch; gap: 8px; }
-            .item-row label { width: 100%; }
-            .item-row input, .item-row select { width: 100%; box-sizing: border-box; }
-            .discount-logic, .cost-logic { flex-wrap: wrap; }
-            .item-row input[type="number"] { width: 100%; }
+            .container {
+                padding: 16px;
+            }
 
-            .add-btn, .calc-btn, .temp-save-btn { width: 100%; margin: 6px 0 0 0; }
-            .delete-btn { align-self: flex-end; padding: 10px 8px; }
-            .item-row .delete-btn { width: 100%; align-self: stretch; justify-content: center; }
+            h1 {
+                font-size: 1.4rem;
+            }
 
-            .settings-area { display: grid; grid-template-columns: 1fr; row-gap: 8px; }
-            .settings-area input { width: 100%; }
+            h2 {
+                font-size: 1.1rem;
+            }
 
-            #calculation-order-container { gap: 10px; }
-            .order-block { padding: 10px 14px; font-size: 14px; }
+            .item-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
 
-            #results p { font-size: 1rem; }
+            .item-row label {
+                width: 100%;
+            }
 
-            .modal-content { min-width: auto; width: 92vw; padding: 20px 16px; }
+            .item-row input,
+            .item-row select,
+            .item-row input[type="number"] {
+                width: 100%;
+                box-sizing: border-box;
+            }
 
-            #settings-btn { top: 12px; right: 12px; font-size: 24px; }
+            .discount-logic,
+            .cost-logic {
+                flex-wrap: wrap;
+            }
 
-            body { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+            .add-btn,
+            .calc-btn,
+            .temp-save-btn {
+                width: 100%;
+                margin: 6px 0 0 0;
+            }
+
+            .delete-btn {
+                align-self: flex-end;
+                padding: 10px 8px;
+            }
+
+            .item-row .delete-btn {
+                width: 100%;
+                align-self: stretch;
+                justify-content: center;
+            }
+
+            .settings-area {
+                display: grid;
+                grid-template-columns: 1fr;
+                row-gap: 8px;
+            }
+
+            .settings-area input {
+                width: 100%;
+            }
+
+            #calculation-order-container {
+                gap: 10px;
+            }
+
+            .order-block {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+
+            #results p {
+                font-size: 1rem;
+            }
+
+            .modal-content {
+                min-width: auto;
+                width: 92vw;
+                padding: 20px 16px;
+            }
+
+            #settings-btn {
+                top: 12px;
+                right: 12px;
+                font-size: 24px;
+            }
         }
 
         /* 桌機版選單微調 */
         @media (min-width: 769px) {
-            .suggestion-delete-btn { font-size: 10px; }
+            .suggestion-delete-btn {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
