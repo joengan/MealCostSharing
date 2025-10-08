@@ -638,6 +638,9 @@ class CustomAutocomplete {
         this.isDragging = false;
         this.clickTimeout = null;
         this.placeholder = null;
+        this.ghostElement = null;
+        this.dragOffsetX = 0;
+        this.dragOffsetY = 0;
         this.init();
     }
 
@@ -701,11 +704,27 @@ class CustomAutocomplete {
                 this.draggedItem = itemDiv;
                 this.dragStartIndex = mealCostData.commonInfo[this.type].indexOf(item);
 
+                const rect = this.draggedItem.getBoundingClientRect();
+                this.dragOffsetX = e.clientX - rect.left;
+                this.dragOffsetY = e.clientY - rect.top;
+
                 this.clickTimeout = setTimeout(() => {
                     this.isDragging = true;
                     this.draggedItem.classList.add('dragging');
                     this.suggestionsContainer.style.cursor = 'grabbing';
                     
+                    this.ghostElement = this.draggedItem.cloneNode(true);
+                    this.ghostElement.classList.remove('dragging');
+                    this.ghostElement.style.position = 'fixed';
+                    this.ghostElement.style.zIndex = '2000';
+                    this.ghostElement.style.pointerEvents = 'none'; // 讓滑鼠事件穿透
+                    this.ghostElement.style.opacity = '0.7';
+                    this.ghostElement.style.width = `${this.draggedItem.offsetWidth}px`;
+                    document.body.appendChild(this.ghostElement);
+                    // 根據初始滑鼠位置設定預覽元素位置
+                    this.ghostElement.style.left = `${e.clientX - this.dragOffsetX}px`;
+                    this.ghostElement.style.top = `${e.clientY - this.dragOffsetY}px`;
+
                     this.placeholder = document.createElement('div');
                     this.placeholder.className = 'suggestion-item placeholder';
                     const rect = this.draggedItem.getBoundingClientRect();
@@ -713,7 +732,14 @@ class CustomAutocomplete {
                 }, 200);
 
                 const onMouseMove = (moveE) => {
-                    if (this.isDragging) this.handleDrag(moveE);
+                    if (this.isDragging) {
+                        this.handleDrag(moveE);
+                        // 3. 移動預覽元素
+                        if (this.ghostElement) {
+                            this.ghostElement.style.left = `${moveE.clientX - this.dragOffsetX}px`;
+                            this.ghostElement.style.top = `${moveE.clientY - this.dragOffsetY}px`;
+                        }
+                    }
                 };
                 const onMouseUp = () => {
                     clearTimeout(this.clickTimeout);
@@ -731,6 +757,10 @@ class CustomAutocomplete {
                     if (this.placeholder) {
                         if (this.placeholder.parentNode) this.placeholder.remove();
                         this.placeholder = null;
+                    }
+                    if (this.ghostElement) {
+                        this.ghostElement.remove();
+                        this.ghostElement = null;
                     }
                     document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', onMouseUp);
