@@ -947,7 +947,7 @@ class CustomAutocomplete {
 
             const handleDragStart = (e, clientX, clientY) => {
                 if (e.target === deleteBtn) return;
-                //e.preventDefault(); // 移除此行，避免立即阻止滾動
+                e.preventDefault(); // 移除此行，避免立即阻止滾動
                 e.stopPropagation(); // 阻止事件冒泡，避免觸發底層元素的拖曳
 
                 this.isDragging = false;
