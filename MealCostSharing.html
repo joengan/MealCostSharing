@@ -979,6 +979,8 @@ class CustomAutocomplete {
                     this.placeholder.className = 'suggestion-item placeholder';
                     const placeholderRect = this.draggedItem.getBoundingClientRect();
                     this.placeholder.style.height = `${placeholderRect.height}px`;
+
+                    this.handleDrag(e);
                 }, 200);
 
                 const onMouseMove = (moveE) => {
