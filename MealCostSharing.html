@@ -968,9 +968,7 @@ class CustomAutocomplete {
                     
                     this.isDragging = true;
                     // 只有在真正開始拖曳時才阻止預設行為 (針對 touch)
-                    if (e.type === 'touchstart') {
-                        e.preventDefault();
-                    }
+                    e.preventDefault();
                     this.draggedItem.classList.add('dragging');
                     this.suggestionsContainer.style.cursor = 'grabbing';
                     
