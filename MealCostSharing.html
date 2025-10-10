@@ -947,7 +947,7 @@ class CustomAutocomplete {
 
             const handleDragStart = (e, clientX, clientY) => {
                 if (e.target === deleteBtn) return;
-                e.preventDefault();
+                //e.preventDefault(); // 移除此行，避免立即阻止滾動
                 e.stopPropagation(); // 阻止事件冒泡，避免觸發底層元素的拖曳
 
                 this.isDragging = false;
@@ -957,8 +957,15 @@ class CustomAutocomplete {
                 const rect = this.draggedItem.getBoundingClientRect();
                 this.dragOffsetX = clientX - rect.left;
                 this.dragOffsetY = clientY - rect.top;
+                
+                // 用於判斷是滾動還是拖曳
+                let startX = clientX;
+                let startY = clientY;
+                let moved = false;
 
                 this.clickTimeout = setTimeout(() => {
+                    if (moved) return; // 如果已經移動過，則不啟動拖曳
+                    
                     this.isDragging = true;
                     this.draggedItem.classList.add('dragging');
                     this.suggestionsContainer.style.cursor = 'grabbing';
@@ -986,6 +993,13 @@ class CustomAutocomplete {
                 const onMouseMove = (moveE) => {
                     const moveClientX = moveE.touches ? moveE.touches[0].clientX : moveE.clientX;
                     const moveClientY = moveE.touches ? moveE.touches[0].clientY : moveE.clientY;
+
+                    // 檢查移動距離，如果超過閾值 (例如 5px)，則視為滾動意圖
+                    if (!moved && Math.abs(moveClientX - startX) > 5 || Math.abs(moveClientY - startY) > 5) {
+                        moved = true;
+                        clearTimeout(this.clickTimeout); // 取消拖曳計時
+                    }
+
                     if (this.isDragging) {
                         this.handleDrag(moveE);
                         if (this.ghostElement) {
@@ -996,7 +1010,8 @@ class CustomAutocomplete {
                 };
                 const onMouseUp = () => {
                     clearTimeout(this.clickTimeout);
-                    if (!this.isDragging) {
+                    // 只有在沒有移動過且不是拖曳狀態時，才觸發選取
+                    if (!this.isDragging && !moved) {
                         this.selectSuggestion(item);
                     } else {
                         this.draggedItem.classList.remove('dragging');
